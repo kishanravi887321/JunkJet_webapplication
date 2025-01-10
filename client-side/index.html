@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizontal Buttons in Top Bar</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        .top-bar {
+            background-color: #240d64;
+            height: 50px;
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            padding: 0 10px; /* Add some spacing on the sides */
+            box-sizing: border-box;
+        }
+        .top-bar button {
+            background-color: #240d64;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px; /* Space between buttons */
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .top-bar button:last-child {
+            margin-right: 0; /* Remove margin for the last button */
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <button id="Home">Login</button>
+        <button id="12">Button 2</button>
+        <button id="13">Button 3</button>
+        <button id="14">Button 4</button>
+        <button id="15">Button 5</button>
+    </div>
+</body>
+</html>
