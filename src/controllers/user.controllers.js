@@ -305,7 +305,7 @@ const updateCoverImage = asyncHandler(async function (req, res, next) {
     }
 });
 
-//  update the user details ... in this project we can only update the user name 
+//  update the user details ... in this project we can only update the user  fullName   
 
 const updateUserDetails = asyncHandler(async (req, res, next) => {
     try {

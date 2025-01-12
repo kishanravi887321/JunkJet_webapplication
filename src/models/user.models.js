@@ -33,9 +33,11 @@ const userSchema =new Schema({
     },
     avatar:{
         type:String,  // cloudinary url
+        default:"http://res.cloudinary.com/dwqiyaz20/image/upload/v1736528724/blbynriqsqbaycqdjbtx.png"
     },
     coverImage:{
         type:String, // cloudinary url
+        defualt:"http://res.cloudinary.com/dwqiyaz20/image/upload/v1736365441/cqozcynsu9u73ndjnk2i.jpg"
         
     },
     password:{
@@ -54,6 +56,18 @@ const userSchema =new Schema({
 
 },{Timestamps:true})
 
+////  adding the middleware that restircts the passwords, refreshtkn,accesstkn to being the populated 
+// Remove password field from the response when converting to JSON
+userSchema.set("toJSON",{
+    transform:(doc,result,options)=>{  /// doc == mongoose doccument , result =the result object(the js object )  copy of the mongoose doccument
+        delete result.password
+        delete result.refreshToken
+        delete result.accessToken
+        
+        return result
+
+    }
+}) 
 
 userSchema.pre("save", async  function (next){
 
