@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// You don't need to import Schema from 'yup' for Mongoose schema
+
 const { Schema } = mongoose;
 
 import { User } from "./user.models.js";
