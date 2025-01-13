@@ -77,7 +77,7 @@ const addProduct = asyncHandler(async (req, res) => {
 /// update the product details 
 const updateProduct = asyncHandler(async (req, res) => {
     try {
-      const { productId, email, password, details } = req.body;
+      const { productId, email, password,productImage, details } = req.body;
 
       
   
@@ -92,6 +92,21 @@ const updateProduct = asyncHandler(async (req, res) => {
       // Check if product exists
       const product = await Product.findOne({ productId });
       if (!product) throw new ApiError(404, "Product not found");
+
+      let productpath = req.files?.productImage?.[0]?.path;
+     let productUrl;
+  
+    if (productpath) {
+        try {
+            productUrl= await uploadImage(productpath);   // automatically delete from the local server 
+           
+             
+        } catch (error) {
+            console.error("Error uploading avatar:", error.message);
+            throw new ApiError(500, "Failed to upload avatar image");
+        }
+    }
+
   
       // Update the specific details if provided, otherwise keep the original ones
       product.name = details.name || product.name;
@@ -99,7 +114,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       product.materialType = details.materialType || product.materialType;
       product.description = details.description || product.description;
       product.price = details.price || product.price;
-      product.productImage = details.productImage || product.productImage;
+      product.productImage = productImage || product.productImage;
   
       // Save the updated product
       await product.save();
