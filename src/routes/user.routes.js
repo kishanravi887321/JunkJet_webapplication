@@ -31,6 +31,8 @@ router.route("/deletecoverimage").post(verifyToken,deleteCoverImage)
 router.route("/updateavatar").put(upload.fields([{name:"avatar",maxCount:1}]),verifyToken,updateAvatar)
 router.route("/updatecoverimage").put(upload.fields([{name:"coverImage",maxCount:1}]),verifyToken,updateCoverImage)
 router.route("/updatedetails").put(verifyToken,updateUserDetails)
+
+
    
     
 

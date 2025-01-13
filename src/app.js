@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import { router  as userRouter } from "./routes/user.routes.js";
 import { router as phase1user } from "./routes/phase1user.routes.js";
 import { router as phase2user } from "./routes/phase2user.routes.js";
+import { router as review } from "./routes/review.routes.js";
+import { router as product } from "./routes/product.routes.js";
 
 dotenv.config({
     path:'./env'
@@ -20,6 +22,8 @@ app.use(express.json());
 app.use("/api/users",userRouter)
 app.use("/phase1",phase1user)
 app.use("/phase2",phase2user)
+app.use("/review",review)
+app.use("/product",product)
 
 
 

@@ -22,9 +22,9 @@ const findPublicId= (url)=>{
 
 // Configure Cloudinary
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_NAME ||"dwqiyaz20",
-    api_key: process.env.CLOUDINARY_API_KEY||"385381598783636",
-    api_secret: process.env.CLOUDINARY_API_SECRET  ||"eXb5F9cEGyGk_4bF4Yv0eVPzDDw",
+    cloud_name: process.env.CLOUDINARY_NAME ,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET  ,
 });
 console.log(process.env.CLOUDINARY_NAME)
 console.log(process.env.CLOUDINARY_API_SECRET)
@@ -53,6 +53,7 @@ const uploadImage = async (localFilePath) => {
         });
 
         console.log("File uploaded successfully:", response.url);
+        fs.unlinkSync(resolvedFilePath)
         ///  here for now we jsut returning  the url 
         return response.url;
     } catch (error) {
