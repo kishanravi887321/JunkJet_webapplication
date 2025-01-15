@@ -28,6 +28,7 @@ const locationSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        
     },
     {
        // Enable timestamps
@@ -69,7 +70,16 @@ const phase2Schema = new Schema({
     },
 
     // Location for the organization
-    location: locationSchema
+    location: {
+        type:locationSchema,
+        required:true
+    },
+    locationUrl:{
+        type :String,
+        required:true   ////why :becasue if the user phase2 then he have a shop or a organization....that is on googgle map 
+    }
+
+
 }, { timestamps: true }); // Automatically adds createdAt and updatedAt fields
 
 // Pre-hook to set orgOwnerName to orgName if not provided

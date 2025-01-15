@@ -76,6 +76,7 @@ const addProduct = asyncHandler(async (req, res) => {
 
 /// update the product details 
 const updateProduct = asyncHandler(async (req, res) => {
+    
     try {
       const { productId, email, password,productImage, details } = req.body;
 
@@ -140,5 +141,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
   });
 
+
+  
 
   export {addProduct,updateProduct}

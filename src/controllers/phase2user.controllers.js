@@ -6,7 +6,7 @@ import  validator from "validator";
 
 
 const setDetailsOfPhase2User = asyncHandler(async (req, res, next) => {
-    const { email, materialType, orgName, orgNumber, orgEmail, orgOwnerName, location } = req.body;
+    const { email, materialType, orgName, orgNumber, orgEmail, orgOwnerName, location ,locationUrl} = req.body;
 
     try {
 
@@ -38,7 +38,8 @@ const setDetailsOfPhase2User = asyncHandler(async (req, res, next) => {
                     country: location.country,
                     pincode: location.pincode,
                     landmark: location.landmark
-                }
+                },
+                locationUrl
             },
             { new: true,upsert:true } // Ensures that the updated document is returned
         );

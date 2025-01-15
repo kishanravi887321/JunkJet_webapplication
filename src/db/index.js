@@ -12,7 +12,7 @@ const connectDB =async ()=> {
     try {
        const connectionInstance= await mongoose.connect(`${process.env.DB_URL}`)
 
-       console.log(`${process.env.DB_URL}`)
+       
 
        console.log("\n Db connected succsessfully connection HOST::")
 

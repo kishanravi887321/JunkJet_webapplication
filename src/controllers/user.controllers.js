@@ -10,7 +10,7 @@ import dotenv from "dotenv";
 dotenv.config({
     path:"../../.env"
 })
-console.log(process.env.DEFAULT_AVATAR_URL)
+
 ///  register user contoller 
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -56,7 +56,7 @@ const registerUser = asyncHandler(async (req, res) => {
         coverImageLocalPath = req.files.coverImage[0].path;
         try {
             coverImageUrl = await uploadImage(coverImageLocalPath);
-            await deleteFile(coverImageLocalPath); // Ensure the local file is deleted
+             // Ensure the local file is deleted
         } catch (error) {
             console.error("Error uploading cover image:", error.message);
             throw new ApiError(500, "Failed to upload cover image");

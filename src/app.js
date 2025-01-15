@@ -4,6 +4,8 @@ import { router as phase1user } from "./routes/phase1user.routes.js";
 import { router as phase2user } from "./routes/phase2user.routes.js";
 import { router as review } from "./routes/review.routes.js";
 import { router as product } from "./routes/product.routes.js";
+import { router as location } from "./routes/location.routes.js";
+import { router as chatbot } from "./routes/chatbot.routes.js";
 
 dotenv.config({
     path:'./env'
@@ -19,11 +21,14 @@ const app = express();
 // 
 // Middleware
 app.use(express.json());
+app.use(express.text())
+
 app.use("/api/users",userRouter)
 app.use("/phase1",phase1user)
 app.use("/phase2",phase2user)
 app.use("/review",review)
 app.use("/product",product)
+app.use("/chatbot",chatbot)
 
 
 

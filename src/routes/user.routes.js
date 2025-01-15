@@ -1,4 +1,5 @@
 import { Router  } from "express";
+import { chatbot } from "../chatbot/index.js";
 
 import { registerUser,userLogin ,updatePassword, deleteAvatar, updateAvatar, updateUserDetails, deleteCoverImage, updateCoverImage} from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middlewares.js";
@@ -31,6 +32,8 @@ router.route("/deletecoverimage").post(verifyToken,deleteCoverImage)
 router.route("/updateavatar").put(upload.fields([{name:"avatar",maxCount:1}]),verifyToken,updateAvatar)
 router.route("/updatecoverimage").put(upload.fields([{name:"coverImage",maxCount:1}]),verifyToken,updateCoverImage)
 router.route("/updatedetails").put(verifyToken,updateUserDetails)
+router.route("/chatbot").post(chatbot)
+
 
 
    

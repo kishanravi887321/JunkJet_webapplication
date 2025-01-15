@@ -1,10 +1,11 @@
 import { Router   } from "express";
-import { addProduct } from "../controllers/product.controllers.js";
+import { addReview } from "../controllers/review.controllers.js";
+import { verifyToken } from "../middlewares/verifyjwtToken.middlewares.js";
 import validator from "validator";
 const router =Router()
 
 
-router.route("/add").post(addProduct)
+router.route("/addreview").post(verifyToken,addReview)
 
 
 

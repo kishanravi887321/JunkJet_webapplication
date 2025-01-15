@@ -2,7 +2,7 @@ import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
-import { Ravi1 } from "../../ravi.js";
+
 
 // Load environment variables
 dotenv.config({
@@ -26,8 +26,7 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET  ,
 });
-console.log(process.env.CLOUDINARY_NAME)
-console.log(process.env.CLOUDINARY_API_SECRET)
+
 // Helper function to handle file deletion
 const deleteFile = (filePath) => {
     try {
@@ -67,7 +66,7 @@ const uploadImage = async (localFilePath) => {
 //  function for delete the file from the cloudinary
 const deleteFileOnCloudinary= async (url)=>{
     const publiId=findPublicId(url)
-    console.log(publiId)
+
 
     try {
         const result=await cloudinary.uploader.destroy(publiId)

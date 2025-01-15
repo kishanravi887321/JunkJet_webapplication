@@ -17,5 +17,8 @@ router.route("/addproduct").post(
     
     addProduct)
 
-router.route("/updateproduct").post(updateProduct)
+router.route("/updateproduct").put(upload.fields([{
+    name:"productImage",
+    maxcount:1
+}]),updateProduct)
 export {router}
