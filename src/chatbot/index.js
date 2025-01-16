@@ -14,7 +14,7 @@ const chatbot = asyncHandler(async (req, res) => {
   try {
     // Get the user input from the request body
     const userInput = req.body;
-    console.log(userInput);
+    
 
     // Call the function to get the Gemini response
     const response = await getGeminiResponse(userInput);
@@ -28,6 +28,8 @@ const chatbot = asyncHandler(async (req, res) => {
     const { flag, pincode } = extractFlagAndPinCode(response) || {};
 
     if (!flag || !pincode) {
+    
+      
       return res.status(202).send(response);
     }
 
@@ -65,16 +67,16 @@ const chatbot = asyncHandler(async (req, res) => {
   } catch (error) {
     // Catch any error and handle it using ApiError
     if (error instanceof ApiError) {
-      return res.status(error.statusCode).json({
+      return res.status(error.statuscode).json({
         message: error.message,
       });
     }
 
     // Handle unexpected errors (internal server errors)
-    console.error(error);
+    
     return res.status(500).json({
       message: "Internal Server Error",
-      error: error.message || "Something went wrong. Please try again later.",
+      error: error.message || "Something went wrong. Please try again lateddr.",
     });
   }
 });
@@ -94,7 +96,7 @@ function extractFlagAndPinCode(input) {
     const pincode = match[2]; // Extracts '843126'
     return { flag, pincode };
   } else {
-    console.error("Input does not match the expected format.");
+    // console.error("Input does not match the expected format.");
     return null;
   }
 }

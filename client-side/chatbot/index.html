@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat UI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header Section -->
+        <div class="chat-header">
+            <img src="https://via.placeholder.com/40" alt="Avatar">
+            <h4>Company Name</h4>
+        </div>
+
+        <!-- Body Section -->
+        <div class="chat-body" id="chatBody">
+            <div class="message bot">
+                <p>Hi 👋 How can I help you?</p>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Enter your message..." onkeypress="handleKeyPress(event)">
+            <span class="icon" onclick="showContact()">🤖</span>
+            <span class="icon" onclick="attachFiles()">📎</span>
+            <span class="icon" onclick="toggleEmoji()">😊</span>
+            <div id="emojiContainer" class="emoji-container">
+                <span onclick="addEmoji('😊')">😊</span>
+                <span onclick="addEmoji('😂')">😂</span>
+                <span onclick="addEmoji('👍')">👍</span>
+                <span onclick="addEmoji('❤')">❤</span>
+            </div>
+            <button onclick="sendMessage()">&#9658;</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -21,6 +21,7 @@ const app = express();
 // 
 // Middleware
 app.use(express.json());
+app.use(cors())
 app.use(express.text())
 
 app.use("/api/users",userRouter)

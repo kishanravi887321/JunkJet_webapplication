@@ -14,7 +14,7 @@ const getGeminiResponse = async (userInput) => {
  
    previous_prompt+=`,${userInput}`;
 
-   console.log(previous_prompt)
+  
 
    
 
@@ -69,7 +69,9 @@ function description_about_the_chatbot(previous_prompt) {
 
   If users want to specify the type of waste they are looking for, guide them to provide the required details clearly.  
 
-  Another important thing to note is that API requests do not retain previous data. To create a real conversational experience, the chatbot uses the previous prompt and the new prompt to predict what the user wants. If the previous prompt is empty, it means this is a fresh query.  
+  Another important thing to note is that API requests do not retain previous data. To create a real conversational experience,
+   the chatbot uses the previous prompt and the new prompt to predict what the user wants. If the previous prompt is empty, 
+   it means this is a fresh query.  
 
   If the conversation becomes too large for processing, inform the user that they need to start a new session to continue from the beginning.  
 
