@@ -103,27 +103,27 @@ const userLogin=asyncHandler( async (req,res) =>{
 
     if(!user )  throw new ApiError('user not found ')
 
-    console.log(user.password)
-    console.log(password,typeof(password))
+   
 
     const isValidPassword= await  user.isPasswordCorrect(password)
     if(!isValidPassword) throw new ApiError(404,"plzz try with correct Paassword")
 
     //  generate the access and refresh token
     const accessToken=  user.generateAccessToken(user._id)
-    console.log(accessToken,"generateToken")
+    console.log(accessToken,"generateToken","login successful")
 
     const userLoggedIn= await  User.findById(user._id).select("-password -refreshToke")
 
     const options={
         httpOnly:true,
-        secure :true
+        secure:true,
+        sameSite:"Lax"  
            }
 
-    return  res.status("505").cookie("accessToke",accessToken,options).json(    
+    return  res.status(200).cookie("accessToken",accessToken,options).json(    
         200,
         {
-            user:userLoggedIn,accessToken
+            user:userLoggedIn
         },
         "user loged in seccussfully !"
     )

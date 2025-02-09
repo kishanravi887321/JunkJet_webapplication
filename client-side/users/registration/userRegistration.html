@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form </title>
+</head>
+<body>
+    <h1>User Registration</h1>
+
+  <form  action="/register" method ="post">
+
+    <!-- for name  -->
+     <label for="fullName"></label>fullName</label>
+     <input type="text" id="fullName" name="fullName" required>
+     <br><br>
+     <label for="Email">Email</label>
+     <input type="email" id ="email" required>
+     <br><br>
+     <label for="password">Password</label>
+    <input type="text" id ="password" required>
+    
+    <br><br>
+     
+    <label for="confirmPassword">confirmPassword</label>
+     <input type="password" id="confirmPassword" required>
+     <br><br>
+
+     <label for="userName">username</label>
+     <input type="text" id="userName" required>
+     <br><br>
+
+     <button type=" submit">Register</button>
+
+
+  </form>
+    <script src="register.js"></script>
+</body>
+</html>

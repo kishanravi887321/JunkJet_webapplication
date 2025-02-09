@@ -3,272 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat UI</title>
+    <title>Get Location</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
+            text-align: center;
+            margin: 50px;
         }
-
-        .chat-container {
-            width: 400px;
-            height: 600px;
-            border-radius: 10px;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            resize: both;
-        }
-
-        .chat-header {
-            background-color: #4a90e2;
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .chat-header img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .chat-header h4 {
-            margin: 0;
-        }
-
-        .chat-body {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .chat-body .message {
-            display: flex;
-            align-items: center;
-        }
-
-        .chat-body .message.user {
-            justify-content: flex-end;
-        }
-
-        .chat-body .message p {
-            max-width: 80%;
-            padding: 10px;
-            border-radius: 10px;
-            background-color: #f1f1f1;
-            margin: 0;
-            word-wrap: break-word;
-        }
-
-        .chat-body .message p a {
-            color: #4a90e2;
-            text-decoration: underline;
-        }
-
-        .chat-body .message.user p {
-            background-color: #4a90e2;
-            color: white;
-        }
-
-        .chat-footer {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            background-color: white;
-        }
-
-        .chat-footer input {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 20px;
-            background-color: #f1f1f1;
-            outline: none;
-            margin-right: 10px;
-        }
-
-        .chat-footer button {
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 50%;
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
-            position: relative;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
-
-        .emoji-container {
-            display: none;
-            position: absolute;
-            bottom: 50px;
-            left: 10px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        button:hover {
+            background-color: #45a049;
         }
-
-        .emoji-container span {
+        .output {
+            margin-top: 20px;
             font-size: 18px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-
-        .chat-footer .icon {
-            margin-right: 5px;
-            cursor: pointer;
-        }
-
-        .chat-footer .icon:hover {
-            color: #357abf;
-        }
-
-        /* Loading indicator style */
-        .loading-message {
-            font-style: italic;
-            color: #888;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <!-- Header Section -->
-        <div class="chat-header">
-            <img src="https://via.placeholder.com/40" alt="Avatar">
-            <h4>Company Name</h4>
-        </div>
-
-        <!-- Body Section -->
-        <div class="chat-body" id="chatBody">
-            <div class="message bot">
-                <p>Hi 👋 How can I help you?</p>
-            </div>
-        </div>
-
-        <!-- Footer Section -->
-        <div class="chat-footer">
-            <input type="text" id="chatInput" placeholder="Enter your message..." onkeypress="handleKeyPress(event)">
-            <span class="icon" onclick="showContact()">🤖</span>
-            <span class="icon" onclick="attachFiles()">📎</span>
-            <span class="icon" onclick="toggleEmoji()">😊</span>
-            <div id="emojiContainer" class="emoji-container">
-                <span onclick="addEmoji('😊')">😊</span>
-                <span onclick="addEmoji('😂')">😂</span>
-                <span onclick="addEmoji('👍')">👍</span>
-                <span onclick="addEmoji('❤')">❤</span>
-            </div>
-            <button onclick="sendMessage()">&#9658;</button>
-        </div>
-    </div>
+    <h1>Get User Location</h1>
+    <button onclick="getLocation()">Get Location</button>
+    <div class="output" id="output"></div>
 
     <script>
-        function showContact() {
-            alert('Contact us at: +1234567890');
-        }
+        function getLocation() {
+            const output = document.getElementById("output");
 
-        function attachFiles() {
-            alert('Attachment feature coming soon!');
-        }
-
-        function toggleEmoji() {
-            const emojiContainer = document.getElementById('emojiContainer');
-            emojiContainer.style.display = emojiContainer.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function addEmoji(emoji) {
-            const inputField = document.querySelector('#chatInput');
-            inputField.value += emoji;
-        }
-
-        function updateChatBody(message) {
-            const chatBody = document.getElementById('chatBody');
-            const botMessageElement = document.createElement('div');
-            botMessageElement.classList.add('message', 'bot');
-
-            // Handle empty response
-            if (!message || message.trim() === "") {
-                message = "Sorry, I didn't understand that. Please try rephrasing.";
-            }
-
-            // Convert URLs into clickable links
-            const formattedMessage = message.replace(/(https?:\/\/[\w\-\.]+(\.[\w\-]+)+(\/[\w\-\.\?%&=]*)?)/g, '<a href="$1" target="_blank">$1</a>');
-
-            botMessageElement.innerHTML = `<p>${formattedMessage}</p>`;
-            chatBody.appendChild(botMessageElement);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
-
-        function sendMessage() {
-            const inputField = document.getElementById('chatInput');
-            const userInput = inputField.value.trim();
-
-            if (!userInput) {
-                alert("Please enter a message.");
-                return;
-            }
-
-            // Display user message
-            const chatBody = document.getElementById('chatBody');
-            const userMessageElement = document.createElement('div');
-            userMessageElement.classList.add('message', 'user');
-            userMessageElement.innerHTML = `<p>${userInput}</p>`;
-            chatBody.appendChild(userMessageElement);
-            chatBody.scrollTop = chatBody.scrollHeight;
-
-            inputField.value = "";
-
-            // Show loading message
-            const loadingMessage = document.createElement('div');
-            loadingMessage.classList.add('message', 'bot');
-            loadingMessage.innerHTML = `<p class="loading-message">...Typing...</p>`;
-            chatBody.appendChild(loadingMessage);
-            chatBody.scrollTop = chatBody.scrollHeight;
-
-            // Send the message to the backend
-            fetch("http://127.0.0.1:4000/chatbot/chatbotquery", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "text/plain",
-                },
-                body: userInput,
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(errorText => {
-                        throw new Error(errorText);
-                    });
-                }
-                return response.text();
-            })
-            .then(data => {
-                console.log("Received data:", data);
-                chatBody.removeChild(loadingMessage); // Remove loading message
-                updateChatBody(data); // Display bot response
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-                chatBody.removeChild(loadingMessage); // Remove loading message
-                alert("Something went wrong. Please try again.");
-            });
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Prevent form submission if any
-                sendMessage();
+            if (navigator.geolocation) {
+                output.innerHTML = "Fetching location...";
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        output.innerHTML = `<p>Latitude: ${latitude}</p><p>Longitude: ${longitude}</p>`;
+                    },
+                    (error) => {
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                output.innerHTML = "User denied the request for Geolocation.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                output.innerHTML = "Location information is unavailable.";
+                                break;
+                            case error.TIMEOUT:
+                                output.innerHTML = "The request to get user location timed out.";
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                output.innerHTML = "An unknown error occurred.";
+                                break;
+                        }
+                    }
+                );
+            } else {
+                output.innerHTML = "Geolocation is not supported by this browser.";
             }
         }
     </script>

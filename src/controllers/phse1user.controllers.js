@@ -6,27 +6,37 @@ import validator from "validator";
 
 // Create a new Phase1 document with user and address
 const phase1UserAddress = asyncHandler(async (req, res) => {
-    const { houseName, country, pincode, landmark, state, city, phoneNumber } = req.body;
+    const { houseName, country, pincode, landmark, state, city, phoneNumber, latitude, longitude } = req.body;
 
     try {
         // Validate required fields
-        if (!houseName || !country || !pincode || !landmark || !state) {
+        if (!houseName || !country || !pincode || !landmark || !state || !city) {
             throw new ApiError(400, "All fields are required.");
         }
 
-        // Validate phone number format (e.g., checking if it contains only digits)
-        if (!phoneNumber || !validator.isMobilePhone(phoneNumber, 'any', { strictMode: false })) {
+        // Validate phone number format
+        if (!phoneNumber || !validator.isMobilePhone(phoneNumber, "any", { strictMode: false })) {
             throw new ApiError(400, "Invalid phone number format.");
         }
 
+        // Validate coordinates
+        if (latitude === undefined || longitude === undefined) {
+            throw new ApiError(400, "Latitude and longitude are required.");
+        }
+
+        if (!validator.isFloat(String(latitude), { min: -90, max: 90 }) ||
+            !validator.isFloat(String(longitude), { min: -180, max: 180 })) {
+            throw new ApiError(400, "Invalid latitude or longitude values.");
+        }
+
         // Find the user by email
-        const user = await User.findOne({ email: "c@gmail.com" });
+        const user = await User.findOne({ email :"xyz@gmail.com"  });
 
         if (!user) {
             throw new ApiError(404, "User does not exist.");
         }
 
-        // Create a new Phase1User document or update the existing one
+        // Create or update the Phase1User document
         const phase1User = await Phase1User.findOneAndUpdate(
             { user: user._id },
             {
@@ -38,10 +48,14 @@ const phase1UserAddress = asyncHandler(async (req, res) => {
                     pincode,
                     landmark,
                     state,
-                    city
+                    city,
+                    coordinates: {
+                        type: "Point",
+                        coordinates: [longitude, latitude], // GeoJSON format: [longitude, latitude]
+                    },
                 },
             },
-            { new: true, upsert: true } // Returns updated document if exists or creates a new one
+            { new: true, upsert: true } // Returns the updated document if it exists or creates a new one
         );
 
         // Respond with success

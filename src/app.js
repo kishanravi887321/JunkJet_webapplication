@@ -23,6 +23,7 @@ const app = express();
 app.use(express.json());
 app.use(cors())
 app.use(express.text())
+app.use(cookieParser())
 
 app.use("/api/users",userRouter)
 app.use("/phase1",phase1user)
