@@ -23,10 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-          credentials:"include",
+          credentials:"include"
+        
         });
   
         // Handle successful response
+        // console.log("cookies: ",accessToken)
         if (response.ok) {
           const data = await response.json();
           alert(`Login successful! Welcome, ${data.userName || "User"}.`);

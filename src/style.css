@@ -1,0 +1,131 @@
+/* style.css */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    background-color: #f0f0f0; /* Example color */
+    padding: 10px;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between; /* Align items to left and right */
+    align-items: center; /* Vertically center items */
+    max-width: 1200px; /* Limit width for larger screens */
+    margin: 0 auto; /* Center the container */
+    padding: 0 20px; /* Add some padding */
+}
+
+
+.nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.nav-links li {
+    margin-right: 20px;
+}
+
+.search-bar {
+    display: flex;
+}
+
+.search-bar input {
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+
+.search-bar button {
+    padding: 5px 10px;
+    background-color: #4CAF50; /* Example color */
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.category-bar {
+    background-color: #eee;
+    padding: 10px;
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
+}
+
+.category-bar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.category-bar li {
+    margin-right: 20px;
+}
+
+main {
+    padding: 20px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+    grid-gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.product-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center; /* Center content within card */
+
+}
+
+.product-card img {
+    max-width: 100%;
+    height: auto;
+}
+
+.chatbot-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px; /* Adjust size as needed */
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column; /* Stack navigation vertically */
+        align-items: flex-start; /* Align to the left */
+
+    }
+    .nav-links {
+        flex-direction: column; /* Stack links vertically */
+    }
+    .nav-links li {
+        margin: 10px 0; /* Add margin between stacked links */
+    }
+
+    .category-bar ul {
+        flex-wrap: wrap; /* Allow categories to wrap */
+    }
+
+    .category-bar li {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+}
