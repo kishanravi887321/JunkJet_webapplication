@@ -38,22 +38,27 @@ document.addEventListener("DOMContentLoaded", () => {
             // Parse the response
             const result = await response.json();
 
+            if (response.status === 409) { // Handle duplicate user
+                alert("User already exists! Please use a different email or username.");
+                return;
+            }
+
             if (!response.ok) {
                 alert(result.message || "Registration failed!");
                 return;
             }
 
             // Show success message
-            alert(`user registration successfully completed ${response}`);
+            alert("User registration successfully completed!");
 
-            // Display user data
+            // Display user data in console
             console.log("Registered User:", result.data);
 
             // Optionally, redirect or clear the form
             form.reset();
         } catch (error) {
             console.error("Error:", error);
-            alert(`something went wrong ${error.message}`);
+            alert(`Something went wrong: ${error.message}`);
         }
     });
 });

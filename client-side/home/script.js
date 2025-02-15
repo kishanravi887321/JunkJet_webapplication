@@ -38,3 +38,14 @@ if (loginLink) {
     window.location.href = "../users/loginForm/loginForm.html"; // Ensure this path matches your directory structure
   });
 }
+
+// handle navigation to register form 
+
+const registerLink=document.getElementById("reg-link")
+
+if(registerLink){
+  console.log("ravi")
+  registerLink.addEventListener("click",()=>{
+    window.location.href="../users/registration/userRegistration.html"
+  })
+}

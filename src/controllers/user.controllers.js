@@ -33,7 +33,8 @@ const registerUser = asyncHandler(async (req, res) => {
         $or: [{ userName }, { email }]
     });
     if (existUser) {
-        throw new ApiError(409, "User already exists"); // Conflict status code
+         console.log("hekjansd")
+        return res.status(409).json(new ApiResponse(409,null,"user already exist !!")) // Conflict status code
     }
 
     // Handle avatar upload
@@ -170,13 +171,12 @@ const updatePassword = asyncHandler(async (req, res) => {
         return res.status(200).send("Password successfully changed");
 
     } catch (error) {
-        // If error is an instance of ApiError, throw it, else throw a generic error
-        if (error instanceof ApiError) {
-            return res.status(error.statuscode).json({ message: error.message, errors: error.errors });
-        } else {
-            console.error("Error while updating password:", error.message);
-            return res.status(500).json({ message: "Something went wrong, please try again later" });
-        }
+        const statusCode = error.statusCode || 500;
+        console.error("Error:", error.message);
+        return res.status(statusCode).json({
+            success: false,
+            message: error.message || "Something went wrong, please try again later",
+        });
     }
 });
 ///  delete the avaatar image 
