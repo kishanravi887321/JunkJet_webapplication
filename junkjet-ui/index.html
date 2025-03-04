@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JunkJet - Waste Management Platform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Terms & Conditions Modal -->
+    <div id="terms-modal" class="modal">
+        <div class="modal-content">
+            <h2>Terms & Conditions</h2>
+            <div class="terms-text">
+                <p>Welcome to JunkJet, the waste management platform that connects waste generators with recyclers and waste management companies.</p>
+                
+                <h3>1. Acceptance of Terms</h3>
+                <p>By accessing or using JunkJet, you agree to be bound by these Terms and Conditions and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this platform.</p>
+                
+                <h3>2. User Responsibilities</h3>
+                <p>Users are responsible for providing accurate information about the waste materials they wish to sell or purchase. JunkJet is not responsible for any inaccuracies in the information provided by users.</p>
+                
+                <h3>3. Privacy Policy</h3>
+                <p>Your use of JunkJet is also governed by our Privacy Policy, which outlines how we collect, use, and protect your personal information.</p>
+                
+                <h3>4. Platform Usage</h3>
+                <p>JunkJet provides a platform for connecting waste generators with recyclers and waste management companies. We do not guarantee the quality of waste materials or the reliability of users.</p>
+            </div>
+            <div class="terms-agreement">
+                <label for="agree-terms">
+                    <input type="checkbox" id="agree-terms">
+                    <span>I agree to the Terms & Conditions</span>
+                </label>
+                <button id="accept-terms" disabled>Accept & Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Top Navigation Bar -->
+        <nav class="top-nav">
+            <div class="logo">
+                <h1>JunkJet</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search waste materials...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <div class="menu-dropdown">
+                <button class="menu-btn"><i class="fas fa-bars"></i></button>
+                <div class="dropdown-content">
+                    <a href="#"><i class="fas fa-user-edit"></i> Update User Details</a>
+                    <a href="#"><i class="fas fa-box"></i> Order History</a>
+                    <a href="#"><i class="fas fa-money-bill-wave"></i> Transaction History</a>
+                    <a href="#"><i class="fas fa-link"></i> Connections</a>
+                    <a href="login.html"><i class="fas fa-sign-in-alt"></i> Login/Register</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Sidebar - Waste Types -->
+            <div class="sidebar">
+                <div class="sidebar-toggle">
+                    <span>Waste Types</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="sidebar-content">
+                    <ul class="waste-types">
+                        <li><a href="#">ABC</a></li>
+                        <li><a href="#">BCD</a></li>
+                        <li><a href="#">Electronic Waste</a></li>
+                        <li><a href="#">Plastic</a></li>
+                        <li><a href="#">Paper</a></li>
+                        <li><a href="#">Metal</a></li>
+                        <li><a href="#">Glass</a></li>
+                        <li><a href="#">Organic Waste</a></li>
+                        <li><a href="#">Hazardous Waste</a></li>
+                        <li><a href="#">Other</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Welcome Content -->
+            <div class="welcome-content">
+                <h2>Welcome to JunkJet</h2>
+                <p>The smart waste management platform that connects waste generators with recyclers.</p>
+                
+                <div class="phase-cards">
+                    <div class="phase-card" onclick="window.location.href='phase1.html'">
+                        <div class="phase-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3>Phase 1</h3>
+                        <p>For Small Sellers</p>
+                    </div>
+                    
+                    <div class="phase-card" onclick="window.location.href='phase2.html'">
+                        <div class="phase-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h3>Phase 2</h3>
+                        <p>For Organizations</p>
+                    </div>
+                    
+                    <div class="phase-card" onclick="window.location.href='phase3.html'">
+                        <div class="phase-icon">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <h3>Phase 3</h3>
+                        <p>Advanced Options</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot UI -->
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <h3>JunkJet Assistant</h3>
+            <div class="chatbot-controls">
+                <button id="minimize-chatbot"><i class="fas fa-minus"></i></button>
+                <button id="expand-chatbot"><i class="fas fa-expand"></i></button>
+            </div>
+        </div>
+        <div class="chatbot-body">
+            <div class="chat-messages">
+                <div class="message bot">
+                    <p>Hello! How can I help you with waste management today?</p>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" placeholder="Type your message...">
+                <button><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="chatbot-toggle">
+        <button id="toggle-chatbot"><i class="fas fa-comments"></i></button>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+</html>
+
