@@ -10,6 +10,7 @@ dotenv.config({
 const connectDB =async ()=> {
     console.log(process.env.DB_URL)
     try {
+        console.log(process.env.DB_URL)
        const connectionInstance= await mongoose.connect(`${process.env.DB_URL}`)
 
        
