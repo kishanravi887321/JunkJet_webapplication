@@ -3,7 +3,7 @@ import {  phase1UserAddress } from "../controllers/phse1user.controllers.js";
 
 const router=Router()
 
-router.route("/check").post(phase1UserAddress)
+router.route("/register").post(phase1UserAddress)
 
 
     

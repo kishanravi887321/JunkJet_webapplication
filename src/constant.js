@@ -1,12 +1,15 @@
-// import { deleteFileOnCloudinary } from "./utils/cloudinary.js";
+import h3 from "h3-js";
 
-// import dotenv from "dotenv"
-// dotenv.config({
-//     path:"./.env"
-// })
-
-// console.log(process.env.PORT)
-// await deleteFileOnCloudinary("http://res.cloudinary.com/dwqiyaz20/image/upload/v1736528397/lwzvppjvsuhi7rbh5xwd.png")
+const h3Index1 = "83425afffffffff";
 
 
-console.log("TrueFlag1234"==="TrueFlag1234")
+// Use functions directly from `h3`
+// const coord1 = h3.h3ToGeo(h3Index1); // [lat, lon]
+// const coord2 = h3.h3ToGeo(h3Index2); // [lat, lon]
+
+
+let x=h3.latLngToCell(26.647321664066062,72.61499061444094,3)
+console.log(h3.cellToLatLng(h3Index1))
+
+console.log(x)
+

@@ -21,10 +21,17 @@ const app = express();
 // 
 // Middleware
 app.use(express.json());
-app.use(cors({
-     origin: "http://127.0.0.1:5500",
-    credentials:true
-}))
+// app.use(cors(
+//   {
+    
+//      origin: "http://127.0.0.1:5501",
+//     credentials:true
+// }))
+
+// app.use(cors({
+//     credentials:true
+// }))
+app.use(cors())
 app.use(express.text())
 app.use(cookieParser())
 
@@ -34,6 +41,7 @@ app.use("/phase2",phase2user)
 app.use("/review",review)
 app.use("/product",product)
 app.use("/chatbot",chatbot)
+app.use("/location",location)
 
 
 

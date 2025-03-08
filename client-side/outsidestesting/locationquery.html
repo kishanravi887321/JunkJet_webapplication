@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Nearby Waste Buyers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="email"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #56ab2f;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #56ab2f;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #468c26;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .buyer-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .buyer-card h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .buyer-card p {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .buyer-card a {
+            color: #56ab2f;
+            text-decoration: none;
+        }
+
+        .buyer-card a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .success {
+            color: #27ae60;
+            display: none;
+        }
+
+        .error {
+            color: #e74c3c;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Find Nearby Waste Buyers</h2>
+        <form id="findBuyersForm">
+            <div class="form-group">
+                <label for="email">Your Email *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="materialType">Waste Material Type *</label>
+                <input type="text" id="materialType" name="materialType" required placeholder="e.g., Plastic, Paper">
+            </div>
+            <button type="submit">Find Buyers</button>
+            <div class="message success" id="successMsg"></div>
+            <div class="message error" id="errorMsg"></div>
+        </form>
+        <div class="results" id="resultsContainer"></div>
+    </div>
+
+    <script>
+        document.getElementById("findBuyersForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const materialType = document.getElementById("materialType").value;
+            const successMsg = document.getElementById("successMsg");
+            const errorMsg = document.getElementById("errorMsg");
+            const resultsContainer = document.getElementById("resultsContainer");
+
+            successMsg.style.display = "none";
+            errorMsg.style.display = "none";
+            resultsContainer.innerHTML = ""; // Clear previous results
+
+            try {
+                const response = await fetch("http://127.0.0.1:4000/location/finduser", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, materialType }),
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || "Failed to find buyers");
+                }
+
+                successMsg.textContent = result.message;
+                successMsg.style.display = "block";
+
+                if (result.data.length > 0) {
+                    result.data.forEach(buyer => {
+                        const card = document.createElement("div");
+                        card.className = "buyer-card";
+                        card.innerHTML = `
+                            <h3>${buyer.orgName}</h3>
+                            <p>Material Type: ${buyer.materialType}</p>
+                            <p>Distance: ${buyer.distanceKm} km</p>
+                            <p>Contact: ${buyer.contact}</p>
+                            <p><a href="${buyer.locationUrl}" target="_blank">View on Google Maps</a></p>
+                        `;
+                        resultsContainer.appendChild(card);
+                    });
+                } else {
+                    resultsContainer.innerHTML = "<p>No buyers found within 20 km.</p>";
+                }
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>

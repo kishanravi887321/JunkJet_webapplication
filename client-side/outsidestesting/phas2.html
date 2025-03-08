@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Phase 2 User Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(120deg, #74ebd5 0%, #acb6e5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #1abc9c;
+            outline: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #1abc9c;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #16a085;
+        }
+
+        #submitBtn {
+            width: 100%;
+            padding: 14px;
+            background: #3498db;
+            font-size: 16px;
+        }
+
+        #submitBtn:hover {
+            background: #2980b9;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .success {
+            color: #27ae60;
+            display: none;
+        }
+
+        .error {
+            color: #e74c3c;
+            display: none;
+        }
+
+        #locationStatus {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Update Phase 2 User Details</h2>
+        <form id="phase2Form">
+            <div class="form-group">
+                <label for="email">User Email *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="materialType">Material Type *</label>
+                <input type="text" id="materialType" name="materialType" required>
+            </div>
+            <div class="form-group">
+                <label for="orgName">Organization Name *</label>
+                <input type="text" id="orgName" name="orgName" required>
+            </div>
+            <div class="form-group">
+                <label for="orgNumber">Organization Phone Number *</label>
+                <input type="tel" id="orgNumber" name="orgNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="orgEmail">Organization Email *</label>
+                <input type="email" id="orgEmail" name="orgEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="orgOwnerName">Organization Owner Name</label>
+                <input type="text" id="orgOwnerName" name="orgOwnerName">
+            </div>
+            <div class="form-group">
+                <label for="city">City *</label>
+                <input type="text" id="city" name="location.city" required>
+            </div>
+            <div class="form-group">
+                <label for="state">State *</label>
+                <input type="text" id="state" name="location.state" required>
+            </div>
+            <div class="form-group">
+                <label for="country">Country *</label>
+                <input type="text" id="country" name="location.country" required>
+            </div>
+            <div class="form-group">
+                <label for="pincode">Pincode *</label>
+                <input type="text" id="pincode" name="location.pincode" required>
+            </div>
+            <div class="form-group">
+                <label for="landmark">Landmark *</label>
+                <input type="text" id="landmark" name="location.landmark" required>
+            </div>
+            <div class="form-group">
+                <label>Location Coordinates</label>
+                <input type="number" id="latitude" name="location.latitude" step="any" placeholder="Enter or fetch latitude">
+                <input type="number" id="longitude" name="location.longitude" step="any" placeholder="Enter or fetch longitude">
+                <div class="button-group">
+                    <button type="button" id="getLocationBtn">Get Current Location</button>
+                    <button type="button" id="getMapUrlBtn">Get Google Maps URL</button>
+                </div>
+                <div id="locationStatus"></div>
+            </div>
+            <div class="form-group">
+                <label for="locationUrl">Google Maps URL *</label>
+                <input type="url" id="locationUrl" name="locationUrl" required placeholder="Generated after coordinates">
+            </div>
+            <button type="submit" id="submitBtn">Update Details</button>
+            <div class="message success" id="successMsg"></div>
+            <div class="message error" id="errorMsg"></div>
+        </form>
+    </div>
+
+    <script>
+        // Get current location
+        document.getElementById("getLocationBtn").addEventListener("click", () => {
+            const locationStatus = document.getElementById("locationStatus");
+            const latitudeInput = document.getElementById("latitude");
+            const longitudeInput = document.getElementById("longitude");
+
+            locationStatus.textContent = "Fetching your location...";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        latitudeInput.value = latitude;
+                        longitudeInput.value = longitude;
+                        locationStatus.textContent = `Location fetched: Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}`;
+                        locationStatus.style.color = "#27ae60";
+                    },
+                    (error) => {
+                        locationStatus.textContent = "Unable to fetch location. Please allow location access or enter manually.";
+                        locationStatus.style.color = "#e74c3c";
+                    }
+                );
+            } else {
+                locationStatus.textContent = "Geolocation not supported. Please enter coordinates manually.";
+                locationStatus.style.color = "#e74c3c";
+            }
+        });
+
+        // Generate Google Maps URL
+        document.getElementById("getMapUrlBtn").addEventListener("click", () => {
+            const latitude = parseFloat(document.getElementById("latitude").value);
+            const longitude = parseFloat(document.getElementById("longitude").value);
+            const locationUrlInput = document.getElementById("locationUrl");
+            const locationStatus = document.getElementById("locationStatus");
+
+            if (
+                !isNaN(latitude) && !isNaN(longitude) &&
+                latitude >= -90 && latitude <= 90 &&
+                longitude >= -180 && longitude <= 180
+            ) {
+                const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                locationUrlInput.value = googleMapsUrl;
+                locationStatus.textContent = "Google Maps URL generated successfully.";
+                locationStatus.style.color = "#27ae60";
+            } else {
+                locationStatus.textContent = "Please provide valid latitude (-90 to 90) and longitude (-180 to 180).";
+                locationStatus.style.color = "#e74c3c";
+            }
+        });
+
+        // Form submission
+        document.getElementById("phase2Form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                email: document.getElementById("email").value,
+                materialType: document.getElementById("materialType").value.trim().toLowerCase(),
+
+                orgName: document.getElementById("orgName").value,
+                orgNumber: document.getElementById("orgNumber").value,
+                orgEmail: document.getElementById("orgEmail").value,
+                orgOwnerName: document.getElementById("orgOwnerName").value,
+                location: {
+                    city: document.getElementById("city").value,
+                    state: document.getElementById("state").value,
+                    country: document.getElementById("country").value,
+                    pincode: document.getElementById("pincode").value,
+                    landmark: document.getElementById("landmark").value,
+                    latitude: parseFloat(document.getElementById("latitude").value),
+                    longitude: parseFloat(document.getElementById("longitude").value),
+                },
+                locationUrl: document.getElementById("locationUrl").value,
+            };
+
+            const successMsg = document.getElementById("successMsg");
+            const errorMsg = document.getElementById("errorMsg");
+
+            successMsg.style.display = "none";
+            errorMsg.style.display = "none";
+
+            try {
+                const response = await fetch("http://127.0.0.1:4000/phase2/update", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || "Failed to update Phase2User");
+                }
+
+                successMsg.textContent = result.message;
+                successMsg.style.display = "block";
+                document.getElementById("phase2Form").reset();
+                document.getElementById("locationStatus").textContent = "";
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>

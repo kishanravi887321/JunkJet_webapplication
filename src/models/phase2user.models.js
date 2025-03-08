@@ -1,108 +1,63 @@
-    import mongoose from "mongoose";
+import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-    const { Schema } = mongoose;
-
-    // Helper schema for the location with coordinates
-    const locationSchema = new mongoose.Schema(
-        {
-            city: {
-                type: String,
-                required: true, // Required
-            },
-            state: {
-                type: String,
-                required: true,
-            },
-            pincode: {
-                type: String,
-                required: true,
-            },
-            country: {
-                type: String,
-                required: true,
-            },
-            landmark: {
-                type: String,
-                required: true,
-            },
-            coordinates: {
-                type: {
-                    type: String,
-                    enum: ["Point"], // GeoJSON type must be "Point"
-                    required: true,
-                    default: "Point",
-                },
-                coordinates: {
-                    type: [Number], // Array for [longitude, latitude]
-                    required: true,
-                },
-            },
-        },
-        {
-            _id: false, // Disable _id for the subdocument
+// Location schema for storing address details with multi-resolution H3 hex indexing
+const locationSchema = new Schema(
+    {
+        city: { type: String, required: true },
+        state: { type: String, required: true },
+        pincode: { type: String, required: true },
+        country: { type: String, required: true },
+        landmark: { type: String, required: true },
+        longitude: { type: Number, required: true }, // Longitude of the location
+        latitude: { type: Number, required: true }, // Latitude of the location
+        
+        // Store multiple H3 indexes for different resolutions (9 to 3)
+        hexIds: {
+            9: { type: String, required: true },
+            8: { type: String, required: true },
+            7: { type: String, required: true },
+            6: { type: String, required: true },
+            5: { type: String, required: true },
+            4: { type: String, required: true },
+            3: { type: String, required: true },
         }
-    );
+    },
+    { _id: false } // Disable _id for the subdocument
+);
 
-    // Add 2dsphere index for geospatial queries
-    locationSchema.index({ coordinates: "2dsphere" });
-
-    // Define the Phase2User schema
-    const phase2Schema = new Schema(
-        {
-            user: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-                required: true, // Ensure the user field is always provided
-            },
-
-            materialType: {
-                type: String,
-                required: true, // Ensure materialType is provided
-            },
-
-            // Organization name that buys the waste
-            orgName: {
-                required: true,
-                type: String,
-            },
-
-            orgNumber: {
-                required: true,
-                type: String,
-            },
-
-            // Specific email for the organization (if any)
-            orgEmail: {
-                type: String,
-            },
-
-            orgOwnerName: {
-                type: String,
-            },
-
-            // Location for the organization
-            location: {
-                type: locationSchema,
-                required: true,
-            },
-
-            locationUrl: {
-                type: String,
-                required: true, // Reason: The organization/shop must have a Google Map URL
-            },
+// Define the Phase2User schema (Organization Buyer)
+const phase2Schema = new Schema(
+    {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
         },
-        { timestamps: true } // Automatically adds createdAt and updatedAt fields
-    );
 
-    // Pre-hook to set orgOwnerName to orgName if not provided
-    phase2Schema.pre("save", function (next) {
-        if (!this.orgOwnerName) {
-            this.orgOwnerName = this.orgName;
-        }
-        next();
-    });
+        materialType: { type: String, required: true },
 
-    // Create the Phase2User model from the schema
-    const Phase2User = mongoose.model("Phase2User", phase2Schema);
+        orgName: { type: String, required: true },
+        orgNumber: { type: String, required: true },
+        orgEmail: { type: String },
+        orgOwnerName: { type: String },
 
-    export { Phase2User };
+        location: { type: locationSchema, required: true }, // Stores address, lat/lng, hexIds
+
+        locationUrl: { type: String, required: true }, // Google Maps URL for reference
+    },
+    { timestamps: true }
+);
+
+// Pre-hook to set orgOwnerName to orgName if not provided
+phase2Schema.pre("save", function (next) {
+    if (!this.orgOwnerName) {
+        this.orgOwnerName = this.orgName;
+    }
+    next();
+});
+
+// Create the Phase2User model
+const Phase2User = mongoose.model("Phase2User", phase2Schema);
+
+export { Phase2User };

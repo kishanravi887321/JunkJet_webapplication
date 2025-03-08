@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
   
         // Handle successful response
-        // console.log("cookies: ",accessToken)
+        console.log("cookies: ",accessToken)
         if (response.ok) {
           const data = await response.json();
           alert(`Login successful! Welcome, ${data.userName || "User"}.`);

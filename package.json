@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-    "start": "node -r dotenv/config src/index.js"
+     "start": "node -r dotenv/config src/index.js"
   },
   "author": "Ravikishan",
   "license": "ISC",
@@ -19,12 +19,15 @@
     "email-validator": "^2.0.4",
     "express": "^4.21.2",
     "firebase": "^11.1.0",
+    "geolib": "^3.3.4",
+    "h3-js": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "module": "^1.2.5",
     "mongoose": "^8.9.3",
     "multer": "^1.4.5-lts.1",
     "nanoid": "^5.0.9",
     "path": "^0.12.7",
+    "react": "^19.0.0",
     "readline-sync": "^1.4.10",
     "uuid": "^11.0.5",
     "validator": "^13.12.0",

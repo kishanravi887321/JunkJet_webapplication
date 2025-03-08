@@ -1,17 +1,15 @@
 import mongoose from "mongoose";
 
-/// ------------------>>>>>>>>>>>>>-------------------------->>>>>>>>>>>>>>>>>>>>>>-----------------
-/// this model only for the small seller that can sell the material from his house or etc....
-
+// Address schema for storing location details
 const addressSchema = new mongoose.Schema(
     {
         houseName: {
-            type: String, // Use String type for houseName
-            required: false, // Assuming houseName is optional
+            type: String, // House name (optional)
+            required: false,
         },
         city: {
             type: String,
-            required: true, // Marked as required
+            required: true,
         },
         state: {
             type: String,
@@ -29,36 +27,36 @@ const addressSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        coordinates: {
-            type: {
-                type: String,
-                enum: ["Point"], // GeoJSON type must be "Point"
-                default: "Point",
-            },
-            coordinates: {
-                type: [Number], // Array of numbers [longitude, latitude]
-                required: true, // Marked as required
-            },
+        longitude: {
+            type: Number,
+            required: true, // Longitude coordinate
         },
+        latitude: {
+            type: Number,
+            required: true, // Latitude coordinate
+        },
+        hexId: {
+            type: String,
+            required: true, // H3 index for geospatial indexing
+        }
     },
     {
-        timestamps: false, // Enable timestamps
+        timestamps: false,
         _id: false, // Disable _id for the subdocument
     }
 );
 
-// Define the Phase1 schema
+// Define the Phase1 seller schema
 const phase1Schema1 = new mongoose.Schema(
     {
         phoneNumber: {
             required: true,
             type: String,
         },
-        // The user selling the material
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            select: "userName email fullName", // Selecting specific fields from the User model
+            select: "userName email fullName", // Selecting specific fields from User model
         },
         address: addressSchema, // Embedding address schema inside Phase1
     },

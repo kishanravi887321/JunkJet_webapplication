@@ -24,9 +24,9 @@ const registerUser = asyncHandler(async (req, res) => {
     if(!validator.isEmail(email)){
         throw  new ApiError(202,"plzz write the valid email")
     }
-    if(!validator.isStrongPassword(password)){
-        throw  new ApiError(202,"plzz write the strong password")
-    }
+    // if(!validator.isStrongPassword(password)){
+    //     throw  new ApiError(202,"plzz write the strong password")
+    // }
 
     // Check if the user already exists
     const existUser = await User.findOne({
@@ -124,13 +124,12 @@ const userLogin=asyncHandler( async (req,res) =>{
 
 
            return res.status(200)
-           .cookie("accessToken", accessToken, options)
-           .json({    
-             status: 200,
-             message: "User logged in successfully!",
-             data: { userLoggedIn }
-           });
-         
+    .cookie("accessToken", accessToken, options)
+    .json({    
+        status: 200,
+        message: "User logged in successfully!",
+        data: { userLoggedIn, accessToken }  // ✅ Include accessToken explicitly
+    });
 
     
     

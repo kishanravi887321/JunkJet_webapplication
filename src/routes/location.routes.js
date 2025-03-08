@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { findUserByLocation } from "../services/location.services.js";
+import { findBuyer } from "../controllers/location.controllers.js";
 
 
 const router=Router()
 
-router.route("/finduser").post(findUserByLocation)
+router.route("/finduser").post(findBuyer)
 
 
 

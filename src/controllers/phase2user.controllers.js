@@ -3,87 +3,96 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.models.js";
 import ApiError from "../utils/ApiError.js";
 import validator from "validator";
+import h3 from "h3-js"; // Import h3-js for H3 indexing
 
-const setDetailsOfPhase2User = asyncHandler(async (req, res, next) => {
+const setDetailsOfPhase2User = asyncHandler(async (req, res) => {
     const { email, materialType, orgName, orgNumber, orgEmail, orgOwnerName, location, locationUrl } = req.body;
 
     try {
         // Validate email
-        if (!validator.isEmail(orgEmail)) {
-            throw new ApiError(404, "Please provide a valid email.");
+        if (!orgEmail || !validator.isEmail(orgEmail)) {
+            throw new ApiError(400, "Please provide a valid organization email.");
         }
 
         // Validate phone number
-        if (!orgNumber || !validator.isMobilePhone(orgNumber, 'any', { strictMode: false })) {
-            throw new ApiError(404, "Please provide a valid phone number.");
+        if (!orgNumber || !validator.isMobilePhone(orgNumber, "any", { strictMode: false })) {
+            throw new ApiError(400, "Please provide a valid phone number.");
+        }
+
+        // Validate required location fields
+        if (!location || !location.city || !location.state || !location.country || !location.pincode || !location.landmark) {
+            throw new ApiError(400, "All location fields (city, state, country, pincode, landmark) are required.");
         }
 
         // Validate coordinates
-        if (!location || !location.coordinates || !Array.isArray(location.coordinates)) {
-            throw new ApiError(400, "Please provide valid coordinates [longitude, latitude].");
+        if (location.latitude === undefined || location.longitude === undefined) {
+            throw new ApiError(400, "Latitude and longitude are required.");
         }
-        const [longitude, latitude] = location.coordinates;
+        const { latitude, longitude } = location;
+
         if (
-            typeof longitude !== "number" || 
-            typeof latitude !== "number" ||
-            longitude < -180 || longitude > 180 || 
-            latitude < -90 || latitude > 90
+            !validator.isFloat(String(latitude), { min: -90, max: 90 }) ||
+            !validator.isFloat(String(longitude), { min: -180, max: 180 })
         ) {
-            throw new ApiError(400, "Coordinates must be valid longitude and latitude values.");
+            throw new ApiError(400, "Invalid latitude or longitude values.");
         }
 
-        // Find the user details from the User model; check if the user exists
+        // Generate hex IDs for resolutions 9 to 3
+        const resolutions = [9, 8, 7, 6, 5, 4, 3];
+        let hexIds = {};
+
+        resolutions.forEach(res => {
+            hexIds[res] = h3.latLngToCell(latitude, longitude, res);
+        });
+
+        // Find the user by email
         const user = await User.findOne({ email });
         if (!user) {
-            throw new ApiError(400, "User not found.");
+            throw new ApiError(404, "User not found.");
         }
 
-        // Create or update the details about the organization
+        // Trim and convert materialType to lowercase
+        const formattedMaterialType = materialType ? materialType.trim().toLowerCase() : "";
+
+        // Create or update Phase2User
         const phase2User = await Phase2User.findOneAndUpdate(
             { user: user._id },
             {
-                materialType,
+                materialType: formattedMaterialType,
                 orgEmail,
                 orgName,
                 orgNumber,
+                orgOwnerName: orgOwnerName || orgName, // Default to orgName if not provided
                 location: {
                     city: location.city,
                     state: location.state,
                     country: location.country,
                     pincode: location.pincode,
                     landmark: location.landmark,
-                    coordinates: {
-                        type: "Point",
-                        coordinates: [longitude, latitude], // Save longitude and latitude
-                    },
+                    latitude,
+                    longitude,
+                    hexIds, // Store multiple hex IDs
                 },
                 locationUrl,
             },
-            { new: true, upsert: true } // Ensures that the updated document is returned
+            { new: true, upsert: true }
         );
 
-        // If no Phase2User found or updated
         if (!phase2User) {
-            throw new ApiError(404, "Phase2User not found or could not be updated.");
+            throw new ApiError(500, "Failed to update Phase2User.");
         }
 
-        // Return a success response
         return res.status(200).json({
             message: "Phase2User details updated successfully.",
             data: phase2User,
         });
     } catch (error) {
-        // If the error is an instance of ApiError, send the error response with the status code and message
         if (error instanceof ApiError) {
-            return res.status(error.statuscode).json({
-                message: error.message,
-            });
+            return res.status(error.statusCode).json({ message: error.message });
         }
-
-        // If it's any other error, send a generic error message
         return res.status(500).json({
             message: "Internal Server Error",
-            error: "Something went wrong. Please try again later.", // Return a generic message
+            error: "Something went wrong. Please try again later.",
         });
     }
 });

@@ -55,7 +55,7 @@ function sendMessage() {
     chatBody.appendChild(loadingMessage);
     chatBody.scrollTop = chatBody.scrollHeight;
 
-    fetch("http://127.0.0.1:4000/chatbot/chatbotquery", {
+    fetch("https://junkjet.onrender.com/chatbot/chatbotquery", {
         method: "POST",
         headers: {
             "Content-Type": "text/plain",
