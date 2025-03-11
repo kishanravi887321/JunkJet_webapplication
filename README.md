@@ -56,9 +56,11 @@ Implementing WebSockets for real-time updates
 
 Integrating machine learning for predictive waste demand analysis
 
-Expanding chatbot capabilities for better user experience
+Expanding chatbot capabilities for better user experience![_- visual selection](https://github.com/user-attachments/assets/c99d8e48-638e-435f-931f-0bf86027ed26)
 
 
 
-Contributions are welcome! Feel free to open issues and submit pull requests to improve the system.
+
+Contributions are welcome! Feel free to open![_- visual selection (1)](https://github.com/user-attachments/assets/003f9d95-c015-465c-8d33-096415d13a12)
+ issues and submit pull requests to improve the system.
 
