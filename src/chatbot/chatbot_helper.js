@@ -2,9 +2,9 @@
   let previous_prompt=""
   ///  this function is for make the interaction with the GEMINI_API
   const getGeminiResponse = async (userInput) => {
-    const API_KEY = process.env.GEMINI_API_KEY; // Replace with your actual API key
+    const API_KEY = "AIzaSyCJaVeBmNwFtbt5MqrCeqdPNyyJJfJsJ-8"; // Replace with your actual API key
 
-    // console.log(userInput,API_KEY)
+    console.log(userInput,API_KEY)
 
     
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
@@ -44,7 +44,7 @@
       if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
         x=data.candidates[0].content.parts.map(part => part.text).join('');
       }
-    
+      console.log("Response from Gemini:", x);
       return x
 
     
@@ -92,7 +92,11 @@
     return x;  // Return the chatbot's response
   }
 
-
-  export {getGeminiResponse};
+getGeminiResponse("my name is kishan and i am looking for a buyer for my waste material").then(response => {
+    console.log("Gemini Response:", response);
+  }).catch(error => {
+    console.error("Error fetching Gemini response:", error);
+  });
+  // export {getGeminiResponse};
 
 
