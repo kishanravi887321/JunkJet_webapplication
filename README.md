@@ -24,7 +24,7 @@
 - [🌐 Deployment](#deployment)
 - [🔮 Future Enhancements](#future-enhancements)
 - [🤝 Contributing](#contributing)
-- [📄 License](#license)
+
 
 ---
 
@@ -43,70 +43,6 @@ JunkJet is a modern waste management platform that connects waste generators wit
 1. **Phase 1 (Individual Sellers)**: Households and small-scale waste generators
 2. **Phase 2 (Organizations)**: Middle buyers, waste management companies
 3. **Phase 3 (Large Recyclers)**: Industrial-scale recycling facilities
-
-## 🎬 Demo & Screenshots
-
-### Main Interface
-The platform features a clean, responsive design with integrated chatbot support:
-
-![Main Interface](https://github.com/user-attachments/assets/c99d8e48-638e-435f-931f-0bf86027ed26)
-
-### Architecture Visualization
-![Architecture Diagram](https://github.com/user-attachments/assets/003f9d95-c015-465c-8d33-096415d13a12)
-
-## 🔷 Hexagonal Grid Engine
-
-### Why Hexagonal Grid?
-JunkJet's core innovation is its **H3 Hexagonal Grid Engine** - a spatial indexing system that provides superior location matching compared to traditional square grids:
-
-- **Equal Distance Neighbors**: All 6 neighbors are equidistant, eliminating diagonal distortions
-- **No Blind Spots**: Complete coverage without gaps or overlaps
-- **Efficient Expansion**: Smooth outward search patterns for optimal performance
-- **Multi-Resolution**: Supports resolutions 4-8 for varying precision levels
-
-### How It Works
-```
-Resolution 8 (High Precision) → Resolution 4 (Broader Area)
-    🔷          🔷🔷🔷
-   🔷🔷🔷   →   🔷🔷🔷
-    🔷          🔷🔷🔷
-```
-
-1. **Initial Indexing**: User locations converted to H3 hex indexes at multiple resolutions
-2. **Smart Search**: Starts at highest resolution (8) for precise matches
-3. **Dynamic Expansion**: Expands search radius in 35-unit increments
-4. **Resolution Fallback**: Drops to lower resolutions (7,6,5,4) if needed
-5. **Distance Validation**: Final filtering using Geolib for exact distances
-
-## Features
-
-### 🔷 Hexagonal Grid Engine (Core Innovation)
-- **Multi-Resolution H3 Indexing:** Spatial indexing at resolutions 4-8 for varying precision
-- **Smart Search Algorithm:** Starts precise, expands intelligently
-- **Dynamic Radius Expansion:** Incremental search radius growth (35-unit steps)
-- **No Blind Spots:** Complete spatial coverage with hexagonal tessellation
-- **Distance Optimization:** Geolib integration for precise distance calculations
-
-### Core Functionality
-- **AI-Powered Chatbot:** Gemini AI integration for natural language queries and buyer finding
-- **Three-Phase User System:**
-  - *Phase 1:* Individual sellers with household address registration
-  - *Phase 2:* Organizations/middle buyers with business details
-  - *Phase 3:* Large-scale recyclers and industrial buyers
-
-### Technical Features
-- **JWT Authentication:** Secure token-based authentication with refresh tokens
-- **File Upload System:** Cloudinary integration for avatar and cover image storage
-- **Responsive UI:** Multi-phase interface with integrated chatbot
-- **Material Type Filtering:** Support for various waste material categories
-- **Range-based Search:** Configurable search radius (1-5 km to 2000+ km)
-- **Real-time Location Services:** GPS-based location detection and mapping
-
-### Search Algorithm
-- **Hexagonal Grid Expansion:** Starts with high resolution (8) and expands to lower resolutions (4)
-- **Radius Expansion:** Incrementally increases search radius by 35 units per iteration
-- **Distance Filtering:** Filters results based on user-specified maximum distance
-- **Sorted Results:** Returns buyers sorted by proximity to seller
 
 ## Architecture
 
@@ -174,6 +110,70 @@ flowchart TD
     style V fill:#1a1a1a,stroke:#ffffff,stroke-width:2px,color:#ffffff
     style W fill:#1a1a1a,stroke:#ffffff,stroke-width:2px,color:#ffffff
 ```
+## 🎬 Demo & Screenshots
+
+### Main Interface
+The platform features a clean, responsive design with integrated chatbot support:
+
+![Main Interface](https://github.com/user-attachments/assets/c99d8e48-638e-435f-931f-0bf86027ed26)
+
+### Architecture Visualization
+![Architecture Diagram](https://github.com/user-attachments/assets/003f9d95-c015-465c-8d33-096415d13a12)
+
+## 🔷 Hexagonal Grid Engine
+
+### Why Hexagonal Grid?
+JunkJet's core innovation is its **H3 Hexagonal Grid Engine** - a spatial indexing system that provides superior location matching compared to traditional square grids:
+
+- **Equal Distance Neighbors**: All 6 neighbors are equidistant, eliminating diagonal distortions
+- **No Blind Spots**: Complete coverage without gaps or overlaps
+- **Efficient Expansion**: Smooth outward search patterns for optimal performance
+- **Multi-Resolution**: Supports resolutions 4-8 for varying precision levels
+
+### How It Works
+```
+Resolution 8 (High Precision) → Resolution 4 (Broader Area)
+    🔷          🔷🔷🔷
+   🔷🔷🔷   →   🔷🔷🔷
+    🔷          🔷🔷🔷
+```
+
+1. **Initial Indexing**: User locations converted to H3 hex indexes at multiple resolutions
+2. **Smart Search**: Starts at highest resolution (8) for precise matches
+3. **Dynamic Expansion**: Expands search radius in 35-unit increments
+4. **Resolution Fallback**: Drops to lower resolutions (7,6,5,4) if needed
+5. **Distance Validation**: Final filtering using Geolib for exact distances
+
+## Features
+
+### 🔷 Hexagonal Grid Engine (Core Innovation)
+- **Multi-Resolution H3 Indexing:** Spatial indexing at resolutions 4-8 for varying precision
+- **Smart Search Algorithm:** Starts precise, expands intelligently
+- **Dynamic Radius Expansion:** Incremental search radius growth (35-unit steps)
+- **No Blind Spots:** Complete spatial coverage with hexagonal tessellation
+- **Distance Optimization:** Geolib integration for precise distance calculations
+
+### Core Functionality
+- **AI-Powered Chatbot:** Gemini AI integration for natural language queries and buyer finding
+- **Three-Phase User System:**
+  - *Phase 1:* Individual sellers with household address registration
+  - *Phase 2:* Organizations/middle buyers with business details
+  - *Phase 3:* Large-scale recyclers and industrial buyers
+
+### Technical Features
+- **JWT Authentication:** Secure token-based authentication with refresh tokens
+- **File Upload System:** Cloudinary integration for avatar and cover image storage
+- **Responsive UI:** Multi-phase interface with integrated chatbot
+- **Material Type Filtering:** Support for various waste material categories
+- **Range-based Search:** Configurable search radius (1-5 km to 2000+ km)
+- **Real-time Location Services:** GPS-based location detection and mapping
+
+### Search Algorithm
+- **Hexagonal Grid Expansion:** Starts with high resolution (8) and expands to lower resolutions (4)
+- **Radius Expansion:** Incrementally increases search radius by 35 units per iteration
+- **Distance Filtering:** Filters results based on user-specified maximum distance
+- **Sorted Results:** Returns buyers sorted by proximity to seller
+
 
 ## Tech Stack
 
@@ -343,10 +343,6 @@ Backend is deployed on Render for scalability and reliability.
 ## Contributing
 Contributions are welcome! Please open issues and submit pull requests to improve the system.
 
-## 📄 License
-This project is licensed under the MIT License.
-
----
 
 <p align="center">
 Made with ❤️ by <a href="https://github.com/kishanravi887321">Ravi Kishan</a>
