@@ -2,7 +2,7 @@
 import { getToken, setToken, removeToken } from './auth'
 
 // Base configuration
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 // API Response Types
 export interface ApiResponse<T = any> {
