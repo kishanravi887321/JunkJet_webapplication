@@ -1,0 +1,9 @@
+/
+/chatbot
+/phase1
+/phase2
+/phase3
+/profile
+/about
+/auth/login
+/auth/register

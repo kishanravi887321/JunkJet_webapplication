@@ -1,0 +1,528 @@
+# JunkJet API Routes Documentation
+
+## Base URL
+```
+http://localhost:8000
+```
+
+---
+
+## 1. USER ROUTES (Prefix: /api/users)
+
+### 1.1 Register User
+**Endpoint:** `POST /api/users/register`
+**Content-Type:** `multipart/form-data`
+
+**Request Variables:**
+```javascript
+{
+  userName: "string (required)",
+  email: "string (required, valid email)",
+  password: "string (required)",
+  fullName: "string (required)",
+  avatar: "file (optional, image)",
+  coverImage: "file (optional, image)"
+}
+```
+
+**Response:**
+- **Status 201:** Registration successful
+```javascript
+{
+  "status": 201,
+  "data": {
+    "_id": "userId",
+    "userName": "string",
+    "email": "string",
+    "fullName": "string",
+    "avatar": "cloudinary_url",
+    "coverImage": "cloudinary_url",
+    "createdAt": "timestamp",
+    "updatedAt": "timestamp"
+  },
+  "message": "User registered successfully"
+}
+```
+- **Status 409:** User already exists
+```javascript
+{
+  "status": 409,
+  "data": null,
+  "message": "user already exist !!"
+}
+```
+- **Status 400:** Validation errors
+- **Status 500:** Server errors
+
+### 1.2 Login User
+**Endpoint:** `POST /api/users/login`
+**Content-Type:** `application/json`
+
+**Request Variables:**
+```javascript
+{
+  email: "string (required, valid email)",
+  password: "string (required)"
+}
+```
+
+**Response:**
+- **Status 200:** Login successful
+```javascript
+{
+  "status": 200,
+  "message": "User logged in successfully!",
+  "data": {
+    "userLoggedIn": {
+      "_id": "userId",
+      "userName": "string",
+      "email": "string",
+      "fullName": "string",
+      "avatar": "string",
+      "coverImage": "string"
+    },
+    "accessToken": "jwt_token"
+  }
+}
+```
+- **Status 404:** User not found or invalid password
+
+### 1.3 Change Password
+**Endpoint:** `PUT /api/users/changepassword`
+**Content-Type:** `application/json`
+**Authentication:** Required (JWT Token)
+
+**Request Variables:**
+```javascript
+{
+  oldpassword: "string (required)",
+  newpassword: "string (required, strong password)"
+}
+```
+
+**Response:**
+- **Status 200:** "Password successfully changed"
+- **Status 400:** Invalid old password
+- **Status 404:** Strong password required
+
+### 1.4 Delete Avatar
+**Endpoint:** `POST /api/users/deleteavatar`
+**Authentication:** Required (JWT Token)
+
+**Response:**
+- **Status 200:** "avatar deleted successfully !!"
+- **Status 404:** User not found
+
+### 1.5 Delete Cover Image
+**Endpoint:** `POST /api/users/deletecoverimage`
+**Authentication:** Required (JWT Token)
+
+**Response:**
+- **Status 200:** "Cover image deleted successfully!!"
+- **Status 404:** User not found
+
+### 1.6 Update Avatar
+**Endpoint:** `PUT /api/users/updateavatar`
+**Content-Type:** `multipart/form-data`
+**Authentication:** Required (JWT Token)
+
+**Request Variables:**
+```javascript
+{
+  avatar: "file (required, image)"
+}
+```
+
+**Response:**
+- **Status 200:**
+```javascript
+{
+  "message": "Avatar updated successfully",
+  "avatar": "cloudinary_url"
+}
+```
+- **Status 400:** No avatar file uploaded
+
+### 1.7 Update Cover Image
+**Endpoint:** `PUT /api/users/updatecoverimage`
+**Content-Type:** `multipart/form-data`
+**Authentication:** Required (JWT Token)
+
+**Request Variables:**
+```javascript
+{
+  coverImage: "file (required, image)"
+}
+```
+
+**Response:**
+- **Status 200:**
+```javascript
+{
+  "message": "Cover image updated successfully",
+  "coverImage": "cloudinary_url"
+}
+```
+- **Status 400:** No cover image file uploaded
+
+### 1.8 Update User Details
+**Endpoint:** `PUT /api/users/updatedetails`
+**Content-Type:** `application/json`
+**Authentication:** Required (JWT Token)
+
+**Request Variables:**
+```javascript
+{
+  fullName: "string (required)"
+}
+```
+
+**Response:**
+- **Status 200:**
+```javascript
+{
+  "message": "User details updated successfully",
+  "user": {
+    "fullName": "string",
+    "email": "string"
+  }
+}
+```
+
+### 1.9 Chatbot (Deprecated - use /chatbot/chatbotquery instead)
+**Endpoint:** `POST /api/users/chatbot`
+
+---
+
+## 2. PHASE 1 USER ROUTES (Prefix: /phase1)
+
+### 2.1 Register Phase 1 User Address
+**Endpoint:** `POST /phase1/register`
+**Content-Type:** `application/json`
+
+**Request Variables:**
+```javascript
+{
+  email: "string (required, valid email)",
+  phoneNumber: "string (required, valid mobile)",
+  houseName: "string (optional)",
+  country: "string (required)",
+  pincode: "string (required)",
+  landmark: "string (required)",
+  state: "string (required)",
+  city: "string (required)",
+  latitude: "number (required, -90 to 90)",
+  longitude: "number (required, -180 to 180)"
+}
+```
+
+**Response:**
+- **Status 201:**
+```javascript
+{
+  "message": "Phase1User document created/updated successfully.",
+  "data": {
+    "_id": "phase1UserId",
+    "user": "userId",
+    "phoneNumber": "string",
+    "address": {
+      "houseName": "string",
+      "country": "string",
+      "pincode": "string",
+      "landmark": "string",
+      "state": "string",
+      "city": "string",
+      "longitude": "number",
+      "latitude": "number",
+      "hexId": "h3_hex_id"
+    }
+  }
+}
+```
+- **Status 400:** Validation errors
+- **Status 404:** User not found
+
+---
+
+## 3. PHASE 2 USER ROUTES (Prefix: /phase2)
+
+### 3.1 Update Phase 2 User Details
+**Endpoint:** `POST /phase2/update`
+**Content-Type:** `application/json`
+
+**Request Variables:**
+```javascript
+{
+  email: "string (required, valid email)",
+  materialType: "string (required)",
+  orgName: "string (required)",
+  orgNumber: "string (required, valid mobile)",
+  orgEmail: "string (required, valid email)",
+  orgOwnerName: "string (optional, defaults to orgName)",
+  locationUrl: "string (required)",
+  location: {
+    city: "string (required)",
+    state: "string (required)",
+    country: "string (required)",
+    pincode: "string (required)",
+    landmark: "string (required)",
+    latitude: "number (required, -90 to 90)",
+    longitude: "number (required, -180 to 180)"
+  }
+}
+```
+
+**Response:**
+- **Status 200:**
+```javascript
+{
+  "message": "Phase2User details updated successfully.",
+  "data": {
+    "_id": "phase2UserId",
+    "user": "userId",
+    "materialType": "string",
+    "orgName": "string",
+    "orgNumber": "string",
+    "orgEmail": "string",
+    "orgOwnerName": "string",
+    "location": {
+      "city": "string",
+      "state": "string",
+      "country": "string",
+      "pincode": "string",
+      "landmark": "string",
+      "latitude": "number",
+      "longitude": "number",
+      "hexIds": {
+        "3": "h3_hex_id",
+        "4": "h3_hex_id",
+        "5": "h3_hex_id",
+        "6": "h3_hex_id",
+        "7": "h3_hex_id",
+        "8": "h3_hex_id",
+        "9": "h3_hex_id"
+      }
+    },
+    "locationUrl": "string"
+  }
+}
+```
+- **Status 400:** Validation errors
+- **Status 404:** User not found
+
+---
+
+## 4. LOCATION ROUTES (Prefix: /location)
+
+### 4.1 Find Nearby Buyers
+**Endpoint:** `POST /location/finduser`
+**Content-Type:** `application/json`
+
+**Request Variables:**
+```javascript
+{
+  email: "string (required, valid email)",
+  materialType: "string (required)",
+  rangeKm: "string (required, format: '1-5 km' or '30-50 km')"
+}
+```
+
+**Response:**
+- **Status 200:**
+```javascript
+{
+  "success": true,
+  "message": "User found successfully.",
+  "matches": [
+    {
+      "orgName": "string",
+      "materialType": "string",
+      "distanceKm": "number",
+      "contact": "string",
+      "locationUrl": "string",
+      "hexId": "string"
+    }
+  ]
+}
+```
+- **Status 404:** No users found within specified range
+- **Status 400:** Validation errors
+
+---
+
+## 5. CHATBOT ROUTES (Prefix: /chatbot)
+
+### 5.1 Chatbot Query
+**Endpoint:** `POST /chatbot/chatbotquery`
+**Content-Type:** `text/plain`
+**Middleware:** checkValidPrompt
+
+**Request Variables:**
+```javascript
+"string (required, user query as plain text)"
+```
+
+**Response:**
+- **Status 202:** Direct AI response or formatted user details
+```javascript
+// For regular queries:
+"AI response text"
+
+// For location-based queries (TrueFlag1234):
+"Organization Name: ABC Company
+Organization Email: abc@company.com
+Organization Number: +1234567890
+Location: City, State, Country, Pincode: 123456
+Landmark: Near XYZ
+Location URL: google_maps_url
+Material Type: plastic
+-----------------------------------"
+```
+- **Status 404:** No users found or login required
+- **Status 400:** Invalid input
+
+---
+
+## 6. PRODUCT ROUTES (Prefix: /product)
+
+### 6.1 Add Product
+**Endpoint:** `POST /product/addproduct`
+**Content-Type:** `multipart/form-data`
+
+**Request Variables:**
+```javascript
+{
+  email: "string (required, valid email)",
+  name: "string (required)",
+  tag: "string (required)",
+  productId: "string (required)",
+  quantity: "string (required)",
+  materialType: "string (required)",
+  description: "string (required)",
+  price: "string (required)",
+  productImage: "file (optional, image)"
+}
+```
+
+**Response:**
+- **Status 201:**
+```javascript
+{
+  "message": "Product added successfully",
+  "product": {
+    "_id": "productId",
+    "name": "string",
+    "tag": "string",
+    "productId": "string",
+    "productImage": "cloudinary_url",
+    "quantity": "string",
+    "materialType": "string",
+    "description": "string",
+    "price": "string"
+  }
+}
+```
+- **Status 404:** User not found
+
+### 6.2 Update Product
+**Endpoint:** `PUT /product/updateproduct`
+**Content-Type:** `multipart/form-data`
+
+**Request Variables:**
+```javascript
+{
+  productId: "string (required)",
+  email: "string (required, valid email)",
+  password: "string (required)",
+  productImage: "file (optional, image)",
+  details: {
+    name: "string (optional)",
+    quantity: "string (optional)",
+    materialType: "string (optional)",
+    description: "string (optional)",
+    price: "string (optional)"
+  }
+}
+```
+
+**Response:**
+- **Status 200:**
+```javascript
+{
+  "message": "Product updated successfully",
+  "product": {
+    // Updated product object
+  }
+}
+```
+- **Status 404:** User/Product not found or password mismatch
+
+---
+
+## 7. REVIEW ROUTES (Prefix: /review)
+
+### 7.1 Add Review
+**Endpoint:** `POST /review/addreview`
+**Content-Type:** `application/json`
+**Authentication:** Required (JWT Token)
+
+**Request Variables:**
+```javascript
+{
+  productId: "string (required)",
+  rating: "number (required)",
+  comment: "string (required)"
+}
+```
+
+**Response:**
+- **Status 201:**
+```javascript
+{
+  "message": "Review added successfully",
+  "review": {
+    "_id": "reviewId",
+    "product": "productObjectId",
+    "user": "userObjectId",
+    "rating": "number",
+    "comment": "string",
+    "createdAt": "timestamp"
+  }
+}
+```
+- **Status 400:** Already reviewed this product
+- **Status 401:** Please log in first
+- **Status 404:** Product not found
+
+---
+
+## Authentication Notes
+
+### JWT Token
+- Required for routes marked with "Authentication: Required"
+- Send token in Authorization header: `Bearer <token>`
+- Token is also set as httpOnly cookie named "accessToken"
+
+### File Upload
+- Use `multipart/form-data` content type for file uploads
+- Supported file types: Images (avatar, coverImage, productImage)
+- Files are uploaded to Cloudinary
+
+### Error Handling
+All endpoints follow this error response format:
+```javascript
+{
+  "message": "Error description",
+  "error": "Additional error details (optional)"
+}
+```
+
+### Status Codes Used
+- **200:** Success
+- **201:** Created successfully
+- **202:** Accepted (for chatbot responses)
+- **400:** Bad Request (validation errors)
+- **401:** Unauthorized
+- **404:** Not Found
+- **409:** Conflict (duplicate data)
+- **500:** Internal Server Error
