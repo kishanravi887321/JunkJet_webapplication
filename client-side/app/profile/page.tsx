@@ -27,7 +27,7 @@ export default function ProfilePage() {
     phone: "",
   })
 
-  // Mock stats data - in real app, fetch from API
+  // Mock user stats - in real app, would fetch from API
   const userStats = {
     totalWasteContributed: 245.8,
     itemsRecycled: 127,
@@ -42,9 +42,9 @@ export default function ProfilePage() {
       setProfileData({
         fullName: user.fullName || "",
         email: user.email || "",
-        bio: user.bio || "",
-        location: user.location || "",
-        phone: user.phone || "",
+        bio: "", // Not available in backend User model
+        location: "", // Not available in backend User model  
+        phone: "", // Not available in backend User model
       })
     }
   }, [user])
