@@ -11,10 +11,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { UserStats } from "@/components/profile/user-stats"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { useAuth } from "@/lib/auth"
+import { useUpdateUserDetails, useUpdateAvatar } from "@/hooks/useApi"
 import { User, Edit3 } from "lucide-react"
 
 export default function ProfilePage() {
   const { user } = useAuth()
+  const { execute: updateUserDetails, loading: updatingProfile } = useUpdateUserDetails()
+  const { execute: updateAvatar, loading: updatingAvatar } = useUpdateAvatar()
   const [isEditing, setIsEditing] = useState(false)
   const [profileData, setProfileData] = useState({
     fullName: "",
@@ -47,9 +50,12 @@ export default function ProfilePage() {
   }, [user])
 
   const handleSave = async () => {
-    // In real app, make API call to update profile
-    console.log("Saving profile:", profileData)
-    setIsEditing(false)
+    try {
+      await updateUserDetails({ fullName: profileData.fullName })
+      setIsEditing(false)
+    } catch (error) {
+      console.error("Failed to update profile:", error)
+    }
   }
 
   if (!user) return null

@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, MapPin, Phone, Home } from "lucide-react"
 import { useAuth } from "@/lib/auth"
+import { useRegisterPhase1User } from "@/hooks/useApi"
 
 interface AddressData {
   phoneNumber: string
@@ -29,6 +30,7 @@ interface AddressRegistrationProps {
 
 export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
   const { user } = useAuth()
+  const { execute: registerPhase1User, loading, error: apiError } = useRegisterPhase1User()
   const [formData, setFormData] = useState<AddressData>({
     phoneNumber: "",
     houseName: "",
@@ -40,9 +42,8 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
     latitude: 0,
     longitude: 0,
   })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
   const [gettingLocation, setGettingLocation] = useState(false)
+  const [error, setError] = useState("")
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -78,33 +79,17 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
     e.preventDefault()
     if (!user) return
 
-    setLoading(true)
     setError("")
 
     try {
-      const response = await fetch("http://localhost:8000/phase1/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          ...formData,
-        }),
+      await registerPhase1User({
+        email: user.email,
+        ...formData,
       })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        onSuccess()
-      } else {
-        setError(data.message || "Registration failed")
-      }
-    } catch (error) {
-      setError("Network error. Please try again.")
+      onSuccess()
+    } catch (error: any) {
+      setError(error.message || "Registration failed")
     }
-
-    setLoading(false)
   }
 
   return (
@@ -120,9 +105,9 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {(error || apiError) && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{error || apiError}</AlertDescription>
             </Alert>
           )}
 

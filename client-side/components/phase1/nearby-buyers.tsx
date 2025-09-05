@@ -9,15 +9,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Search, MapPin, Phone, ExternalLink } from "lucide-react"
 import { useAuth } from "@/lib/auth"
+import { useFindNearbyBuyers } from "@/hooks/useApi"
+import type { BuyerMatch } from "@/lib/api"
 
-interface Buyer {
-  orgName: string
-  materialType: string
-  distanceKm: number
-  contact: string
-  locationUrl: string
-  hexId: string
-}
+interface Buyer extends BuyerMatch {}
 
 const materialTypes = ["plastic", "paper", "metal", "glass", "electronic", "organic", "textile", "mixed"]
 
@@ -25,50 +20,39 @@ const rangeOptions = ["1-5 km", "5-10 km", "10-20 km", "20-30 km", "30-50 km"]
 
 export function NearbyBuyers() {
   const { user } = useAuth()
+  const { execute: findNearbyBuyers, loading, error: apiError } = useFindNearbyBuyers()
   const [materialType, setMaterialType] = useState("")
   const [rangeKm, setRangeKm] = useState("")
   const [buyers, setBuyers] = useState<Buyer[]>([])
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [searched, setSearched] = useState(false)
 
   const handleSearch = async () => {
     if (!user || !materialType || !rangeKm) return
 
-    setLoading(true)
     setError("")
     setBuyers([])
 
     try {
-      const response = await fetch("http://localhost:8000/location/finduser", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          materialType,
-          rangeKm,
-        }),
+      const response = await findNearbyBuyers({
+        email: user.email,
+        materialType,
+        rangeKm,
       })
 
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        setBuyers(data.matches || [])
+      if (response.success) {
+        setBuyers(response.data || [])
         setSearched(true)
       } else {
-        setError(data.message || "No buyers found in the specified range")
+        setError(response.message || "No buyers found in the specified range")
         setBuyers([])
         setSearched(true)
       }
-    } catch (error) {
-      setError("Network error. Please try again.")
+    } catch (error: any) {
+      setError(error.message || "Network error. Please try again.")
       setBuyers([])
       setSearched(true)
     }
-
-    setLoading(false)
   }
 
   return (
@@ -129,13 +113,13 @@ export function NearbyBuyers() {
           )}
         </Button>
 
-        {error && (
+        {(error || apiError) && (
           <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{error || apiError}</AlertDescription>
           </Alert>
         )}
 
-        {searched && buyers.length === 0 && !error && (
+        {searched && buyers.length === 0 && !error && !apiError && (
           <Alert>
             <AlertDescription>
               No buyers found for {materialType} within {rangeKm}. Try expanding your search range or check back later.

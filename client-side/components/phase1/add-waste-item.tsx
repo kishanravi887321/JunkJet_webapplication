@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Package, Tag, DollarSign, FileImage } from "lucide-react"
 import { useAuth } from "@/lib/auth"
+import { useAddProduct } from "@/hooks/useApi"
 
 interface WasteItemData {
   name: string
@@ -31,6 +32,7 @@ const materialTypes = ["plastic", "paper", "metal", "glass", "electronic", "orga
 
 export function AddWasteItem({ onSuccess }: AddWasteItemProps) {
   const { user } = useAuth()
+  const { execute: addProduct, loading, error: apiError } = useAddProduct()
   const [formData, setFormData] = useState<WasteItemData>({
     name: "",
     tag: "",
@@ -41,7 +43,6 @@ export function AddWasteItem({ onSuccess }: AddWasteItemProps) {
     price: "",
   })
   const [productImage, setProductImage] = useState<File | null>(null)
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -73,51 +74,35 @@ export function AddWasteItem({ onSuccess }: AddWasteItemProps) {
     e.preventDefault()
     if (!user) return
 
-    setLoading(true)
     setError("")
 
     try {
-      const formDataToSend = new FormData()
-      formDataToSend.append("email", user.email)
-      formDataToSend.append("name", formData.name)
-      formDataToSend.append("tag", formData.tag)
-      formDataToSend.append("productId", formData.productId || generateProductId())
-      formDataToSend.append("quantity", formData.quantity)
-      formDataToSend.append("materialType", formData.materialType)
-      formDataToSend.append("description", formData.description)
-      formDataToSend.append("price", formData.price)
-
-      if (productImage) {
-        formDataToSend.append("productImage", productImage)
-      }
-
-      const response = await fetch("http://localhost:8000/product/addproduct", {
-        method: "POST",
-        body: formDataToSend,
+      await addProduct({
+        email: user.email,
+        name: formData.name,
+        tag: formData.tag,
+        productId: formData.productId || generateProductId(),
+        quantity: formData.quantity,
+        materialType: formData.materialType,
+        description: formData.description,
+        price: formData.price,
+        productImage: productImage || undefined,
       })
 
-      const data = await response.json()
-
-      if (response.ok) {
-        setFormData({
-          name: "",
-          tag: "",
-          productId: "",
-          quantity: "",
-          materialType: "",
-          description: "",
-          price: "",
-        })
-        setProductImage(null)
-        onSuccess()
-      } else {
-        setError(data.message || "Failed to add waste item")
-      }
-    } catch (error) {
-      setError("Network error. Please try again.")
+      setFormData({
+        name: "",
+        tag: "",
+        productId: "",
+        quantity: "",
+        materialType: "",
+        description: "",
+        price: "",
+      })
+      setProductImage(null)
+      onSuccess()
+    } catch (error: any) {
+      setError(error.message || "Failed to add waste item")
     }
-
-    setLoading(false)
   }
 
   return (
@@ -131,9 +116,9 @@ export function AddWasteItem({ onSuccess }: AddWasteItemProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {(error || apiError) && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{error || apiError}</AlertDescription>
             </Alert>
           )}
 

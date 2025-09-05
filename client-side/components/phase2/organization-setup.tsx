@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Building, Mail, Phone, MapPin, ExternalLink } from "lucide-react"
 import { useAuth } from "@/lib/auth"
+import { useUpdatePhase2User } from "@/hooks/useApi"
 
 interface OrganizationData {
   materialType: string
@@ -38,6 +39,7 @@ const materialTypes = ["plastic", "paper", "metal", "glass", "electronic", "orga
 
 export function OrganizationSetup({ onSuccess }: OrganizationSetupProps) {
   const { user } = useAuth()
+  const { execute: updatePhase2User, loading, error: apiError } = useUpdatePhase2User()
   const [formData, setFormData] = useState<OrganizationData>({
     materialType: "",
     orgName: "",
@@ -55,7 +57,6 @@ export function OrganizationSetup({ onSuccess }: OrganizationSetupProps) {
       longitude: 0,
     },
   })
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [gettingLocation, setGettingLocation] = useState(false)
 
@@ -116,33 +117,17 @@ export function OrganizationSetup({ onSuccess }: OrganizationSetupProps) {
     e.preventDefault()
     if (!user) return
 
-    setLoading(true)
     setError("")
 
     try {
-      const response = await fetch("http://localhost:8000/phase2/update", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          ...formData,
-        }),
+      await updatePhase2User({
+        email: user.email,
+        ...formData,
       })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        onSuccess()
-      } else {
-        setError(data.message || "Organization setup failed")
-      }
-    } catch (error) {
-      setError("Network error. Please try again.")
+      onSuccess()
+    } catch (error: any) {
+      setError(error.message || "Organization setup failed")
     }
-
-    setLoading(false)
   }
 
   return (
@@ -159,9 +144,9 @@ export function OrganizationSetup({ onSuccess }: OrganizationSetupProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
+          {(error || apiError) && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{error || apiError}</AlertDescription>
             </Alert>
           )}
 

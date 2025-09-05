@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send, Bot, User, Loader2 } from "lucide-react"
 import { useAuth } from "@/lib/auth"
+import { useChatbot } from "@/hooks/useApi"
 
 interface Message {
   id: string
@@ -18,7 +19,13 @@ interface Message {
 }
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
+  const [inputMessage, setInputMessage] = useState("")
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const { user } = useAuth()
+  const { messages: chatMessages, loading: isLoading, sendMessage: sendChatMessage } = useChatbot()
+
+  // Convert chatbot messages to our Message format
+  const messages: Message[] = [
     {
       id: "1",
       content:
@@ -26,11 +33,13 @@ export function ChatInterface() {
       sender: "bot",
       timestamp: new Date(),
     },
-  ])
-  const [inputMessage, setInputMessage] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const { user } = useAuth()
+    ...chatMessages.map((msg, index) => ({
+      id: `msg-${index}`,
+      content: msg.text,
+      sender: msg.isUser ? ("user" as const) : ("bot" as const),
+      timestamp: msg.timestamp,
+    }))
+  ]
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -41,53 +50,12 @@ export function ChatInterface() {
   const sendMessage = async () => {
     if (!inputMessage.trim() || !user) return
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputMessage,
-      sender: "user",
-      timestamp: new Date(),
-    }
-
-    setMessages((prev) => [...prev, userMessage])
-    setInputMessage("")
-    setIsLoading(true)
-
     try {
-      const response = await fetch("/api/chatbot/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: inputMessage,
-          userId: user.id,
-        }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content:
-            data.response ||
-            "I apologize, but I'm having trouble processing your request right now. Please try again later.",
-          sender: "bot",
-          timestamp: new Date(),
-        }
-        setMessages((prev) => [...prev, botMessage])
-      } else {
-        throw new Error("Failed to get response")
-      }
+      await sendChatMessage(inputMessage)
+      setInputMessage("")
     } catch (error) {
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: "I'm sorry, I'm experiencing technical difficulties. Please try again in a moment.",
-        sender: "bot",
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, errorMessage])
-    } finally {
-      setIsLoading(false)
+      // Error is already handled by the hook
+      console.error("Chat error:", error)
     }
   }
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { api, User as ApiUser } from "./api"
 
 export interface User {
   _id: string
@@ -17,6 +18,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   loading: boolean
+  updateUser: (userData: Partial<User>) => void
 }
 
 interface RegisterData {
@@ -28,6 +30,27 @@ interface RegisterData {
   coverImage?: File
 }
 
+// Token management functions
+export const getToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem("accessToken")
+  }
+  return null
+}
+
+export const setToken = (token: string): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("accessToken", token)
+  }
+}
+
+export const removeToken = (): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("userData")
+  }
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -36,15 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check if user is logged in on mount
-    const token = localStorage.getItem("accessToken")
+    const token = getToken()
     const userData = localStorage.getItem("userData")
 
     if (token && userData) {
       try {
         setUser(JSON.parse(userData))
       } catch (error) {
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("userData")
+        removeToken()
       }
     }
     setLoading(false)
@@ -52,69 +74,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch("http://localhost:8000/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.status === 200) {
-        const { userLoggedIn, accessToken } = data.data
+      const response = await api.loginUser({ email, password })
+      
+      if (response.status === 200 && response.data) {
+        const { userLoggedIn } = response.data
         setUser(userLoggedIn)
-        localStorage.setItem("accessToken", accessToken)
         localStorage.setItem("userData", JSON.stringify(userLoggedIn))
         return { success: true }
       } else {
-        return { success: false, error: data.message || "Login failed" }
+        return { success: false, error: response.message || "Login failed" }
       }
-    } catch (error) {
-      return { success: false, error: "Network error. Please try again." }
+    } catch (error: any) {
+      return { success: false, error: error.message || "Network error. Please try again." }
     }
   }
 
   const register = async (registerData: RegisterData) => {
     try {
-      const formData = new FormData()
-      formData.append("userName", registerData.userName)
-      formData.append("email", registerData.email)
-      formData.append("password", registerData.password)
-      formData.append("fullName", registerData.fullName)
-
-      if (registerData.avatar) {
-        formData.append("avatar", registerData.avatar)
-      }
-      if (registerData.coverImage) {
-        formData.append("coverImage", registerData.coverImage)
-      }
-
-      const response = await fetch("http://localhost:8000/api/users/register", {
-        method: "POST",
-        body: formData,
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.status === 201) {
+      const response = await api.registerUser(registerData)
+      
+      if (response.status === 201) {
         return { success: true }
       } else {
-        return { success: false, error: data.message || "Registration failed" }
+        return { success: false, error: response.message || "Registration failed" }
       }
-    } catch (error) {
-      return { success: false, error: "Network error. Please try again." }
+    } catch (error: any) {
+      return { success: false, error: error.message || "Network error. Please try again." }
     }
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("userData")
+    api.logout()
   }
 
-  return <AuthContext.Provider value={{ user, login, register, logout, loading }}>{children}</AuthContext.Provider>
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData }
+      setUser(updatedUser)
+      localStorage.setItem("userData", JSON.stringify(updatedUser))
+    }
+  }
+
+  return <AuthContext.Provider value={{ user, login, register, logout, loading, updateUser }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
