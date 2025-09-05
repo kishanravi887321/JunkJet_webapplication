@@ -97,6 +97,6 @@ getGeminiResponse("my name is kishan and i am looking for a buyer for my waste m
   }).catch(error => {
     console.error("Error fetching Gemini response:", error);
   });
-  // export {getGeminiResponse};
+  export {getGeminiResponse};
 
 
