@@ -52,7 +52,11 @@ if (maxKm>101) {
 
     // Step 5: Send the response
     if (!users || users.length === 0) {
-        throw new ApiError(404, "No users found within the specified range.");
+        return res.status(405).json({
+            success: false,
+            message: "No matching users found.",
+            matches: [],
+        });
     }
     console.log(users,"users found")
 
