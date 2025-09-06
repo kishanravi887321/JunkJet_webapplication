@@ -81,6 +81,8 @@ const setDetailsOfPhase2User = asyncHandler(async (req, res) => {
         if (!phase2User) {
             throw new ApiError(500, "Failed to update Phase2User.");
         }
+        user.isPhase2User = true;
+        await user.save();
 
         return res.status(200).json({
             message: "Phase2User details updated successfully.",
