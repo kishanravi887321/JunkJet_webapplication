@@ -7,6 +7,7 @@ import { router as product } from "./routes/product.routes.js";
 import { router as location } from "./routes/location.routes.js";
 import { router as chatbot } from "./routes/chatbot.routes.js";
 import analyticsRouter from "./routes/analytics.routes.js";
+import transactionRouter from "./routes/transaction.routes.js";
 
 dotenv.config({
     path:'./env'
@@ -48,6 +49,7 @@ app.use("/product",product)
 app.use("/chatbot",express.text(),chatbot)
 app.use("/location",location)
 app.use("/api/analytics",analyticsRouter)
+app.use("/api/transactions",transactionRouter)
 
 
 

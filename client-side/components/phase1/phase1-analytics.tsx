@@ -102,19 +102,30 @@ export function Phase1Analytics() {
         ])
 
         // Update state with real data
+        console.log('Summary Response:', summaryResponse)
+        console.log('Waste Trend Response:', wasteTrendResponse)
+        console.log('Material Response:', materialResponse)
+        console.log('Buyer Response:', buyerResponse)
+        console.log('Earnings Response:', earningsResponse)
+
         if (summaryResponse.data) {
+          console.log('Setting stats:', summaryResponse.data)
           setStats(summaryResponse.data)
         }
-        if (wasteTrendResponse.data) {
+        if (wasteTrendResponse.data && wasteTrendResponse.data.length > 0) {
+          console.log('Setting waste trend data:', wasteTrendResponse.data)
           setWasteTrendData(wasteTrendResponse.data)
         }
-        if (materialResponse.data) {
+        if (materialResponse.data && materialResponse.data.length > 0) {
+          console.log('Setting material data:', materialResponse.data)
           setMaterialData(materialResponse.data)
         }
-        if (buyerResponse.data) {
+        if (buyerResponse.data && buyerResponse.data.length > 0) {
+          console.log('Setting buyer data:', buyerResponse.data)
           setBuyerPerformanceData(buyerResponse.data)
         }
-        if (earningsResponse.data) {
+        if (earningsResponse.data && earningsResponse.data.length > 0) {
+          console.log('Setting earnings data:', earningsResponse.data)
           setEarningsTrendData(earningsResponse.data)
         }
       } catch (err) {

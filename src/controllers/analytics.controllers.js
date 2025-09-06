@@ -227,26 +227,12 @@ const getAnalyticsSummary = asyncHandler(async (req, res) => {
             throw new ApiError(404, "User not found");
         }
 
-        // First try to get existing analytics data
+        // Get existing analytics data (don't recalculate if it exists)
         let analytics = await Phase1Analytics.findOne({ user: user._id });
         
-        // If no analytics exist, create empty one
+        // Only update if no analytics exist
         if (!analytics) {
-            analytics = await Phase1Analytics.findOneAndUpdate(
-                { user: user._id },
-                { 
-                    user: user._id,
-                    totalWasteSold: 0,
-                    totalEarnings: 0,
-                    totalTransactions: 0,
-                    impactScore: 0,
-                    activeBuyers: [],
-                    materialStats: [],
-                    monthlyStats: [],
-                    lastUpdated: new Date()
-                },
-                { upsert: true, new: true }
-            );
+            analytics = await updateUserAnalytics(user._id);
         }
 
         const summary = {
