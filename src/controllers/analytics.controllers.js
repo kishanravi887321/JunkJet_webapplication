@@ -227,8 +227,27 @@ const getAnalyticsSummary = asyncHandler(async (req, res) => {
             throw new ApiError(404, "User not found");
         }
 
-        // Update analytics before returning
-        const analytics = await updateUserAnalytics(user._id);
+        // First try to get existing analytics data
+        let analytics = await Phase1Analytics.findOne({ user: user._id });
+        
+        // If no analytics exist, create empty one
+        if (!analytics) {
+            analytics = await Phase1Analytics.findOneAndUpdate(
+                { user: user._id },
+                { 
+                    user: user._id,
+                    totalWasteSold: 0,
+                    totalEarnings: 0,
+                    totalTransactions: 0,
+                    impactScore: 0,
+                    activeBuyers: [],
+                    materialStats: [],
+                    monthlyStats: [],
+                    lastUpdated: new Date()
+                },
+                { upsert: true, new: true }
+            );
+        }
 
         const summary = {
             totalWasteSold: (analytics.totalWasteSold / 1000).toFixed(1), // Convert to K kg
