@@ -35,6 +35,10 @@
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          console.error("Rate limit exceeded. Please try again later.");
+          return "I'm currently experiencing high demand. Please try again in a few minutes.";
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -92,11 +96,13 @@
     return x;  // Return the chatbot's response
   }
 
-getGeminiResponse("my name is kishan and i am looking for a buyer for my waste material").then(response => {
-    console.log("Gemini Response:", response);
-  }).catch(error => {
-    console.error("Error fetching Gemini response:", error);
-  });
-  export {getGeminiResponse};
+// Removed automatic test call to prevent rate limiting
+// getGeminiResponse("my name is kishan and i am looking for a buyer for my waste material").then(response => {
+//     console.log("Gemini Response:", response);
+//   }).catch(error => {
+//     console.error("Error fetching Gemini response:", error);
+//   });
+
+export {getGeminiResponse};
 
 

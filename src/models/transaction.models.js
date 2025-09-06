@@ -125,11 +125,12 @@ const transactionSchema = new Schema({
 });
 
 // Indexes for better performance
-transactionSchema.index({ seller: 1, createdAt: -1 });
-transactionSchema.index({ buyer: 1, createdAt: -1 });
+// transactionSchema.index({ seller: 1, createdAt: -1 });
+// transactionSchema.index({ buyer: 1, createdAt: -1 });
 transactionSchema.index({ status: 1 });
 transactionSchema.index({ materialType: 1 });
 transactionSchema.index({ 'pickupLocation.city': 1 });
+transactionSchema.index({ createdAt: -1 }); // For sorting by date
 
 // Pre-save middleware to calculate total amount
 transactionSchema.pre('save', function(next) {
