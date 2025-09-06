@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { AddWasteItem } from "./add-waste-item"
 import { NearbyBuyers } from "./nearby-buyers"
-import { HouseholdStats } from "./household-stats"
+import { Phase1Analytics } from "./phase1-analytics"
 import { AddressRegistration } from "./address-registration"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -64,13 +64,7 @@ export function Phase1Dashboard({ refreshKey, onItemSuccess }: Phase1DashboardPr
       </TabsList>
 
       <TabsContent value="dashboard" className="space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold">Your Impact Dashboard</h2>
-          <p className="text-muted-foreground">
-            Track your waste management progress and environmental contribution
-          </p>
-        </div>
-        <HouseholdStats key={refreshKey} />
+        <Phase1Analytics key={refreshKey} />
       </TabsContent>
 
       <TabsContent value="add-item" className="space-y-6">

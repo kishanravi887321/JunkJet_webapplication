@@ -26,6 +26,7 @@ export function NearbyBuyers() {
   const [buyers, setBuyers] = useState<Buyer[]>([])
   const [error, setError] = useState("")
   const [searched, setSearched] = useState(false)
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
   const handleSearch = async () => {
     if (!user || !materialType || !rangeKm) return
@@ -41,8 +42,12 @@ export function NearbyBuyers() {
       })
 
       if (response.success) {
-        setBuyers(response.data || [])
+        // API returns buyers in 'matches' field, not 'data'
+        const buyersData = (response.matches || response.data || []) as BuyerMatch[]
+        setBuyers(buyersData)
         setSearched(true)
+        
+        console.log('Found buyers:', buyersData)
       } else {
         setError(response.message || "No buyers found in the specified range")
         setBuyers([])
@@ -157,7 +162,7 @@ export function NearbyBuyers() {
                         <Button variant="outline" size="sm" asChild>
                           <a href={buyer.locationUrl} target="_blank" rel="noopener noreferrer">
                             <ExternalLink className="mr-2 h-4 w-4" />
-                            View Location
+                            <span className="font-semibold text-primary underline">Google Maps</span>
                           </a>
                         </Button>
                         <Button size="sm" asChild>
@@ -166,8 +171,19 @@ export function NearbyBuyers() {
                             Contact
                           </a>
                         </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}>
+                          {expandedIndex === index ? "Hide Details" : "Show Details"}
+                        </Button>
                       </div>
                     </div>
+                    {expandedIndex === index && (
+                      <div className="mt-4 p-4 bg-muted rounded">
+                        <div className="mb-2"><span className="font-semibold">Organization Name:</span> {buyer.orgName}</div>
+                        <div className="mb-2"><span className="font-semibold">Material Type:</span> {buyer.materialType}</div>
+                        <div className="mb-2"><span className="font-semibold">Contact:</span> {buyer.contact}</div>
+                        <div className="mb-2"><span className="font-semibold">Distance:</span> {buyer.distanceKm.toFixed(2)} km</div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
