@@ -63,6 +63,8 @@ const phase1UserAddress = asyncHandler(async (req, res) => {
             },
             { new: true, upsert: true } // Return updated doc or create new
         );
+        user.isPhase1User = true;
+        await user.save();
 
         // Respond with success
         return res.status(201).json({

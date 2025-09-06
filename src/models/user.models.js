@@ -51,8 +51,19 @@ const userSchema =new Schema({
     },
     accessToken:{
         type :String
-    }
-
+    },
+    isPhase1User:{
+        type:Boolean,
+        default:false
+    },
+    isPhase2User:{
+        type:Boolean,
+        default:false
+    },
+    isPhase3User:{
+        type:Boolean,
+        default:false
+    }   
 
 },{Timestamps:true})
 
