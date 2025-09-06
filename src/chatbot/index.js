@@ -33,7 +33,7 @@ const chatbot = asyncHandler(async (req, res) => {
 
     // Check if user is logged in
     // const userEmail = req.user?.email || ""; // Assuming email is stored in req.user for logged-in users
-    const user = await User.findOne({ email: "xyz@gmail.com" });
+    const user = await User.findOne({ email: "kishanravi887321@gmail.com" });
 
     if (!user) {
       throw new ApiError(404, "Login required!");
@@ -42,7 +42,7 @@ const chatbot = asyncHandler(async (req, res) => {
     let userDetails = "";
     let users;
     
-
+   console.log('u hitted the cahtbot route')
       
     if (response.trim() ==="TrueFlag1234") { // For Phase1User
       // Find the Phase1User associated with the logged-in user

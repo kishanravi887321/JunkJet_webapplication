@@ -32,7 +32,7 @@ app.use(express.json());
 //     credentials:true
 // }))
 app.use(cors())
-app.use(express.text())
+// app.use(express.text())
 app.use(cookieParser())
 
 app.use("/api/users",userRouter)
@@ -40,7 +40,7 @@ app.use("/phase1",phase1user)
 app.use("/phase2",phase2user)
 app.use("/review",review)
 app.use("/product",product)
-app.use("/chatbot",chatbot)
+app.use("/chatbot",express.text(),chatbot)
 app.use("/location",location)
 
 
