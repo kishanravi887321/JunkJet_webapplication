@@ -8,6 +8,7 @@ import { Package, History, TrendingUp, ShoppingCart, Zap } from "lucide-react"
 import { TransactionDashboard } from "@/components/transactions/transaction-dashboard"
 import { TransactionHistory } from "@/components/transactions/transaction-history"
 import { QuickBuySell } from "@/components/transactions/quick-buy-sell"
+import { TransactionMarketplace } from "@/components/transactions/transaction-marketplace"
 
 export default function TransactionsPage() {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -90,10 +91,14 @@ export default function TransactionsPage() {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="marketplace" className="flex items-center gap-2">
+            <ShoppingCart className="h-4 w-4" />
+            Marketplace
           </TabsTrigger>
           <TabsTrigger value="quick-trade" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
@@ -118,6 +123,21 @@ export default function TransactionsPage() {
             </Badge>
           </div>
           <TransactionDashboard />
+        </TabsContent>
+
+        <TabsContent value="marketplace" className="space-y-6">
+          <div className="text-center space-y-2 mb-6">
+            <h2 className="text-2xl font-bold">Materials Marketplace</h2>
+            <p className="text-muted-foreground">
+              Browse and purchase recyclable materials from households in your area
+            </p>
+            <div className="flex justify-center gap-2">
+              <Badge variant="secondary">Live Listings</Badge>
+              <Badge variant="secondary">Verified Sellers</Badge>
+              <Badge variant="secondary">Fair Pricing</Badge>
+            </div>
+          </div>
+          <TransactionMarketplace />
         </TabsContent>
 
         <TabsContent value="quick-trade" className="space-y-6">
