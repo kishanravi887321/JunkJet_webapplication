@@ -343,9 +343,9 @@ class ApiClient {
     return this.request<string>('/chatbot/chatbotquery', {
       method: 'POST',
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
       },
-      body: message,
+      body: JSON.stringify({ message }),
     })
   }
 

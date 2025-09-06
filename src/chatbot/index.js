@@ -13,9 +13,20 @@ import { User } from "../models/user.models.js";
 const chatbot = asyncHandler(async (req, res) => {
   try {
     // Get the user input from the request body
-    const userInput = req.body;
+    let userInput;
+    
+    // Handle both text and JSON input
+    if (typeof req.body === 'string') {
+      userInput = req.body; // Raw text input
+    } else if (req.body && typeof req.body === 'object') {
+      userInput = req.body.message || req.body.input || req.body.text || ""; // JSON input
+    } else {
+      userInput = "";
+    }
 
-    if (!userInput || typeof userInput !== "string") {
+    console.log('Received input:', userInput, 'Type:', typeof req.body);
+
+    if (!userInput || typeof userInput !== "string" || userInput.trim() === "") {
       throw new ApiError(400, "Invalid input: User input must be a non-empty string.");
     }
 

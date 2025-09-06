@@ -22,7 +22,9 @@ const app = express();
 
 // 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '16kb' }));
+app.use(express.text({ limit: '16kb' }));
+app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 
 // Fix CORS configuration
 app.use(cors({
@@ -39,7 +41,8 @@ app.use("/phase1",phase1user)
 app.use("/phase2",phase2user)
 app.use("/review",review)
 app.use("/product",product)
-app.use("/chatbot",express.text(),chatbot)
+// Chatbot route - now handles both JSON and text due to global middleware
+app.use("/chatbot", chatbot)
 app.use("/location",location)
 app.use("/api/analytics",analyticsRouter)
 app.use("/api/transactions",transactionRouter)
