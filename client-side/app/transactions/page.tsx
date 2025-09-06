@@ -9,6 +9,7 @@ import { TransactionDashboard } from "@/components/transactions/transaction-dash
 import { TransactionHistory } from "@/components/transactions/transaction-history"
 import { QuickBuySell } from "@/components/transactions/quick-buy-sell"
 import { TransactionMarketplace } from "@/components/transactions/transaction-marketplace"
+import { FindUsers } from "@/components/transactions/find-users"
 
 export default function TransactionsPage() {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -91,10 +92,14 @@ export default function TransactionsPage() {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="find-users" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Find Users
           </TabsTrigger>
           <TabsTrigger value="marketplace" className="flex items-center gap-2">
             <ShoppingCart className="h-4 w-4" />
@@ -123,6 +128,21 @@ export default function TransactionsPage() {
             </Badge>
           </div>
           <TransactionDashboard />
+        </TabsContent>
+
+        <TabsContent value="find-users" className="space-y-6">
+          <div className="text-center space-y-2 mb-6">
+            <h2 className="text-2xl font-bold">Find Users</h2>
+            <p className="text-muted-foreground">
+              Discover buyers and sellers using our smart heuristic matching algorithm
+            </p>
+            <div className="flex justify-center gap-2">
+              <Badge variant="secondary">Smart Matching</Badge>
+              <Badge variant="secondary">Location-based</Badge>
+              <Badge variant="secondary">Rating System</Badge>
+            </div>
+          </div>
+          <FindUsers />
         </TabsContent>
 
         <TabsContent value="marketplace" className="space-y-6">
