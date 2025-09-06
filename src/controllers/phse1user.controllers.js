@@ -8,7 +8,7 @@ import h3 from "h3-js"; // Import h3-js for hexId calculation
 // Create or update a Phase1 document with user and address
 const phase1UserAddress = asyncHandler(async (req, res) => {
     const { houseName, country, pincode, landmark, state, city, phoneNumber, latitude, longitude, email } = req.body;
-
+   console.log(req.body,'body')
     try {
         // Validate required fields
         if (!country || !pincode || !landmark || !state || !city) {
