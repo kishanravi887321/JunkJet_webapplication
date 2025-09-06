@@ -31,7 +31,11 @@ app.use(express.json());
 // app.use(cors({
 //     credentials:true
 // }))
-app.use(cors())
+app.use(cors('*', {
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 // app.use(express.text())
 app.use(cookieParser())
 
