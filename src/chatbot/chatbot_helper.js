@@ -1,8 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 
-  let previous_prompt=""
-  ///  this function is for make the interaction with the GEMINI_API
-  const getGeminiResponse = async (userInput) => {
-    const API_KEY = "AIzaSyCJaVeBmNwFtbt5MqrCeqdPNyyJJfJsJ-8"; // Replace with your actual API key
+let previous_prompt=""
+///  this function is for make the interaction with the GEMINI_API
+const getGeminiResponse = async (userInput) => {
+    const API_KEY = process.env.GEMINI_API_KEY; // Replace with your actual API key
 
     console.log(userInput,API_KEY)
 
