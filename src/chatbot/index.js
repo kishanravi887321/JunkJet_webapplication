@@ -14,6 +14,8 @@ const chatbot = asyncHandler(async (req, res) => {
   try {
     // Get the user input from the request body
     let userInput;
+
+    console.log('Request body:', req.body);
     
     // Handle both text and JSON input
     if (typeof req.body === 'string') {
