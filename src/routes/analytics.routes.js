@@ -7,6 +7,7 @@ import {
     getBuyerPerformance,
     getEarningsTrend
 } from "../controllers/analytics.controllers.js";
+import { generateTestData } from "../controllers/test.controllers.js";
 
 const router = Router();
 
@@ -19,5 +20,8 @@ router.route("/earnings-trend").get(getEarningsTrend);
 
 // Transaction management
 router.route("/transaction").post(addWasteTransaction);
+
+// Test data generation (for development)
+router.route("/generate-test-data").post(generateTestData);
 
 export default router;

@@ -20,7 +20,7 @@ import {
   Bar
 } from "recharts"
 import { useEffect, useState } from "react"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuth } from "@/lib/auth"
 import {
   getAnalyticsSummary,
   getWasteTrend,
