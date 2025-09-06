@@ -1,15 +1,13 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, MapPin, Phone, Home } from "lucide-react"
-import { useAuth } from "@/lib/auth"
 import { useRegisterPhase1User } from "@/hooks/useApi"
 
 interface AddressData {
@@ -22,6 +20,7 @@ interface AddressData {
   city: string
   latitude: number
   longitude: number
+  email: string
 }
 
 interface AddressRegistrationProps {
@@ -29,7 +28,6 @@ interface AddressRegistrationProps {
 }
 
 export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
-  const { user } = useAuth()
   const { execute: registerPhase1User, loading, error: apiError } = useRegisterPhase1User()
   const [formData, setFormData] = useState<AddressData>({
     phoneNumber: "",
@@ -41,9 +39,28 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
     city: "",
     latitude: 0,
     longitude: 0,
+    email: "", // will be set from localStorage
   })
   const [gettingLocation, setGettingLocation] = useState(false)
   const [error, setError] = useState("")
+
+  // ✅ Load userData from localStorage and set email
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("userData")
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser)
+        if (parsed.email) {
+          setFormData((prev) => ({
+            ...prev,
+            email: parsed.email,
+          }))
+        }
+      }
+    } catch (err) {
+      console.error("Failed to parse userData from localStorage:", err)
+    }
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -64,7 +81,7 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
           }))
           setGettingLocation(false)
         },
-        (error) => {
+        () => {
           setError("Unable to get your location. Please enter coordinates manually.")
           setGettingLocation(false)
         },
@@ -77,15 +94,16 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
+
+    if (!formData.email) {
+      setError("User email not found. Please log in again.")
+      return
+    }
 
     setError("")
 
     try {
-      await registerPhase1User({
-        email: user.email,
-        ...formData,
-      })
+      await registerPhase1User(formData)
       onSuccess()
     } catch (error: any) {
       setError(error.message || "Registration failed")
@@ -111,6 +129,7 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
             </Alert>
           )}
 
+          {/* Phone + House */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phoneNumber">Phone Number *</Label>
@@ -142,6 +161,7 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
             </div>
           </div>
 
+          {/* City + State */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="city">City *</Label>
@@ -170,6 +190,7 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
             </div>
           </div>
 
+          {/* Country + Pincode */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="country">Country *</Label>
@@ -198,6 +219,7 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
             </div>
           </div>
 
+          {/* Landmark */}
           <div className="space-y-2">
             <Label htmlFor="landmark">Landmark *</Label>
             <Input
@@ -211,6 +233,7 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
             />
           </div>
 
+          {/* Coordinates */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label>Location Coordinates</Label>
@@ -270,6 +293,7 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
             </div>
           </div>
 
+          {/* Submit */}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>

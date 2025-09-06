@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import { api, User as ApiUser } from "./api"
+import { api, User as ApiUser, getToken, setToken, removeToken } from "./api"
 
 export interface User {
   _id: string
@@ -28,27 +28,6 @@ interface RegisterData {
   fullName: string
   avatar?: File
   coverImage?: File
-}
-
-// Token management functions
-export const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem("accessToken")
-  }
-  return null
-}
-
-export const setToken = (token: string): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem("accessToken", token)
-  }
-}
-
-export const removeToken = (): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("userData")
-  }
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)

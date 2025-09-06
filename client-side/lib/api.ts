@@ -1,8 +1,28 @@
 // API Configuration and Client for JunkJet Backend
-import { getToken, setToken, removeToken } from './auth'
 
 // Base configuration
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+// Token management functions
+export const getToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem("accessToken")
+  }
+  return null
+}
+
+export const setToken = (token: string): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("accessToken", token)
+  }
+}
+
+export const removeToken = (): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("userData")
+  }
+}
 
 // API Response Types
 export interface ApiResponse<T = any> {
