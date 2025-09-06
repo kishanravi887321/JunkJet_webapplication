@@ -10,6 +10,9 @@ export interface User {
   fullName: string
   avatar?: string
   coverImage?: string
+  isPhase1User: boolean
+  isPhase2User: boolean
+  isPhase3User: boolean
 }
 
 interface AuthContextType {

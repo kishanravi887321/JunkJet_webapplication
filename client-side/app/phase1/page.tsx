@@ -14,21 +14,25 @@ import { Users, Plus, Search, BarChart3, CheckCircle, Home } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 
 export default function Phase1Page() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [isAddressRegistered, setIsAddressRegistered] = useState(false)
   const [loading, setLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
-    // Check if user has registered address
-    // In a real app, you'd make an API call to check registration status
+    // Check if user has registered address using the isPhase1User flag
+    if (user) {
+      setIsAddressRegistered(user.isPhase1User || false)
+    }
     setLoading(false)
-    // For demo purposes, assume address is not registered initially
-    setIsAddressRegistered(false)
   }, [user])
 
   const handleAddressSuccess = () => {
     setIsAddressRegistered(true)
+    // Update user's phase status in local state
+    if (user) {
+      updateUser({ ...user, isPhase1User: true })
+    }
   }
 
   const handleItemSuccess = () => {

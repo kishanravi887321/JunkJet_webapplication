@@ -75,7 +75,7 @@ const registerUser = asyncHandler(async (req, res) => {
     });
 
     // Retrieve the newly created user without sensitive fields
-    const createdUser = await User.findById(createdUserEntry._id).select("-password -refreshToken");
+    const createdUser = await User.findById(createdUserEntry._id).select("-password -refreshToken ");
 
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering the user");
@@ -113,7 +113,7 @@ const userLogin=asyncHandler( async (req,res) =>{
     const accessToken=  user.generateAccessToken(user._id)
     console.log(accessToken,"generateToken","login successful")
 
-    const userLoggedIn= await  User.findById(user._id).select("-password -refreshToke")
+    const userLoggedIn= await  User.findById(user._id).select("-password -refreshToken")
 
     const options={
         httpOnly:true,
