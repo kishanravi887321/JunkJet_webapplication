@@ -25,9 +25,10 @@ interface AddressData {
 
 interface AddressRegistrationProps {
   onSuccess: () => void
+  isUpdate?: boolean
 }
 
-export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
+export function AddressRegistration({ onSuccess, isUpdate = false }: AddressRegistrationProps) {
   const { execute: registerPhase1User, loading, error: apiError } = useRegisterPhase1User()
   const [formData, setFormData] = useState<AddressData>({
     phoneNumber: "",
@@ -118,10 +119,13 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Home className="h-5 w-5 text-primary" />
-          Register Your Address
+          {isUpdate ? "Update Your Address" : "Register Your Address"}
         </CardTitle>
         <CardDescription>
-          Help us connect you with nearby waste buyers by providing your location details.
+          {isUpdate 
+            ? "Update your location details to ensure accurate buyer connections."
+            : "Help us connect you with nearby waste buyers by providing your location details."
+          }
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -301,10 +305,10 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Registering Address...
+                {isUpdate ? "Updating Address..." : "Registering Address..."}
               </>
             ) : (
-              "Register Address"
+              isUpdate ? "Update Address" : "Register Address"
             )}
           </Button>
         </form>
