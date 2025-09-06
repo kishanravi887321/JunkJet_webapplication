@@ -492,6 +492,89 @@ class ApiClient {
     })
   }
 
+  // Transaction API Methods
+  async createTransaction(data: {
+    buyerEmail: string
+    sellerEmail: string
+    transactionType: 'buy' | 'sell'
+    materialType: string
+    materialGrade?: string
+    weight: number
+    pricePerKg: number
+    description?: string
+    pickupLocation?: {
+      address?: string
+      city?: string
+      state?: string
+      country?: string
+      pincode?: string
+      coordinates?: {
+        latitude: number
+        longitude: number
+      }
+    }
+    preferredPickupDate?: string
+    paymentMethod?: string
+    buyerOrgName?: string
+    images?: string[]
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>('/api/transactions/create', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getUserTransactions(params: {
+    email: string
+    type?: 'buy' | 'sell'
+    status?: string
+    page?: number
+    limit?: number
+  }): Promise<ApiResponse<any>> {
+    const queryParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        queryParams.append(key, value.toString())
+      }
+    })
+    
+    return this.request<any>(`/api/transactions/user-transactions?${queryParams}`, {
+      method: 'GET',
+    })
+  }
+
+  async updateTransactionStatus(transactionId: string, data: {
+    status?: string
+    paymentStatus?: string
+    actualPickupDate?: string
+    qualityNotes?: string
+    email: string
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>(`/api/transactions/${transactionId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async addTransactionRating(transactionId: string, data: {
+    rating: number
+    feedback?: string
+    raterType: 'seller' | 'buyer'
+    email: string
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>(`/api/transactions/${transactionId}/rating`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getTransactionAnalytics(email: string, period?: string): Promise<ApiResponse<any>> {
+    const params = period ? `?email=${encodeURIComponent(email)}&period=${period}` : `?email=${encodeURIComponent(email)}`
+    return this.request<any>(`/api/transactions/analytics${params}`, {
+      method: 'GET',
+    })
+  }
+
   // Auth Methods
   logout(): void {
     removeToken()
@@ -523,4 +606,9 @@ export const getMaterialDistribution = (email?: string) => api.getMaterialDistri
 export const getBuyerPerformance = (email?: string) => api.getBuyerPerformance(email)
 export const getEarningsTrend = (email?: string) => api.getEarningsTrend(email)
 export const addWasteTransaction = (data: Parameters<typeof api.addWasteTransaction>[0]) => api.addWasteTransaction(data)
+export const createTransaction = (data: Parameters<typeof api.createTransaction>[0]) => api.createTransaction(data)
+export const getUserTransactions = (params: Parameters<typeof api.getUserTransactions>[0]) => api.getUserTransactions(params)
+export const updateTransactionStatus = (transactionId: string, data: Parameters<typeof api.updateTransactionStatus>[1]) => api.updateTransactionStatus(transactionId, data)
+export const addTransactionRating = (transactionId: string, data: Parameters<typeof api.addTransactionRating>[1]) => api.addTransactionRating(transactionId, data)
+export const getTransactionAnalytics = (email: string, period?: string) => api.getTransactionAnalytics(email, period)
 export const logout = () => api.logout()
