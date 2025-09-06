@@ -3,32 +3,31 @@
 import { useState, useEffect } from "react"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { OrganizationSetup } from "@/components/phase2/organization-setup"
-import { AvailableWaste } from "@/components/phase2/available-waste"
-import { InventoryManagement } from "@/components/phase2/inventory-management"
-import { BuyerStats } from "@/components/phase2/buyer-stats"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Phase2Dashboard } from "@/components/phase2/phase2-dashboard"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Building, Search, Package, BarChart3, CheckCircle, Settings } from "lucide-react"
+import { Building } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 
 export default function Phase2Page() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [isOrganizationSetup, setIsOrganizationSetup] = useState(false)
   const [loading, setLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
-    // Check if user has completed organization setup
-    // In a real app, you'd make an API call to check setup status
+    // Check if user has completed organization setup using the isPhase2User flag
+    if (user) {
+      setIsOrganizationSetup(user.isPhase2User || false)
+    }
     setLoading(false)
-    // For demo purposes, assume organization is not setup initially
-    setIsOrganizationSetup(false)
   }, [user])
 
   const handleSetupSuccess = () => {
     setIsOrganizationSetup(true)
+    // Update user's phase status in local state
+    if (user) {
+      updateUser({ ...user, isPhase2User: true })
+    }
   }
 
   if (loading) {

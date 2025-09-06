@@ -33,11 +33,12 @@ interface OrganizationData {
 
 interface OrganizationSetupProps {
   onSuccess: () => void
+  isUpdate?: boolean
 }
 
 const materialTypes = ["plastic", "paper", "metal", "glass", "electronic", "organic", "textile", "mixed"]
 
-export function OrganizationSetup({ onSuccess }: OrganizationSetupProps) {
+export function OrganizationSetup({ onSuccess, isUpdate = false }: OrganizationSetupProps) {
   const { user } = useAuth()
   const { execute: updatePhase2User, loading, error: apiError } = useUpdatePhase2User()
   const [formData, setFormData] = useState<OrganizationData>({
@@ -135,11 +136,13 @@ export function OrganizationSetup({ onSuccess }: OrganizationSetupProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Building className="h-5 w-5 text-primary" />
-          Organization Setup
+          {isUpdate ? "Update Organization Details" : "Organization Setup"}
         </CardTitle>
         <CardDescription>
-          Set up your organization details to start connecting with households and organizations in the waste management
-          network.
+          {isUpdate 
+            ? "Update your organization details to maintain accurate connections in the waste management network."
+            : "Set up your organization details to start connecting with households and organizations in the waste management network."
+          }
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -384,10 +387,10 @@ export function OrganizationSetup({ onSuccess }: OrganizationSetupProps) {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Setting up Organization...
+                {isUpdate ? "Updating Organization..." : "Setting up Organization..."}
               </>
             ) : (
-              "Complete Setup"
+              isUpdate ? "Update Organization" : "Complete Setup"
             )}
           </Button>
         </form>
