@@ -42,8 +42,10 @@ export function ChatInterface() {
   ]
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+    // Auto-scroll to bottom when new messages are added
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    if (scrollContainer) {
+      scrollContainer.scrollTop = scrollContainer.scrollHeight
     }
   }, [messages])
 
@@ -75,8 +77,8 @@ export function ChatInterface() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
+        <ScrollArea className="flex-1 p-4 max-h-[400px] overflow-y-auto" ref={scrollAreaRef}>
+          <div className="space-y-4 min-h-0">
             {messages.map((message) => (
               <div
                 key={message.id}

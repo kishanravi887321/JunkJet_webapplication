@@ -201,13 +201,15 @@ export function useChatbot() {
 
       // Send to API
       const response = await api.sendChatMessage(message)
+      console.log('Chatbot API response:', response)
       
       // Add bot response to chat
       const botMessage = { 
-        text: response.data || response.message, 
+        text: response.data || response.message || 'No response received', 
         isUser: false, 
         timestamp: new Date() 
       }
+      console.log('Adding bot message:', botMessage)
       setMessages(prev => [...prev, botMessage])
 
       return response
