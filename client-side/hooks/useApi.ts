@@ -38,7 +38,7 @@ export function useApiCall<T, P = any>(
 
 // User Management Hooks
 export function useChangePassword() {
-  return useApiCall(api.changePassword)
+  return useApiCall((data: Parameters<typeof api.changePassword>[0]) => api.changePassword(data))
 }
 
 export function useUpdateUserDetails() {
@@ -150,7 +150,7 @@ export function useRegisterPhase1User() {
     city: string
     latitude: number
     longitude: number
-  }>(api.registerPhase1User)
+  }>((data) => api.registerPhase1User(data))
 }
 
 // Phase 2 Hooks
@@ -172,7 +172,7 @@ export function useUpdatePhase2User() {
       latitude: number
       longitude: number
     }
-  }>(api.updatePhase2User)
+  }>((data) => api.updatePhase2User(data))
 }
 
 // Location Hooks
@@ -181,7 +181,7 @@ export function useFindNearbyBuyers() {
     email: string
     materialType: string
     rangeKm: string
-  }>(api.findNearbyBuyers)
+  }>((data) => api.findNearbyBuyers(data))
 }
 
 // Chatbot Hooks
@@ -249,7 +249,7 @@ export function useAddProduct() {
     description: string
     price: string
     productImage?: File
-  }>(api.addProduct)
+  }>((data) => api.addProduct(data))
 }
 
 export function useUpdateProduct() {
@@ -265,7 +265,7 @@ export function useUpdateProduct() {
       description?: string
       price?: string
     }
-  }>(api.updateProduct)
+  }>((data) => api.updateProduct(data))
 }
 
 // Review Hooks
@@ -274,7 +274,7 @@ export function useAddReview() {
     productId: string
     rating: number
     comment: string
-  }>(api.addReview)
+  }>((data) => api.addReview(data))
 }
 
 // Location Hook for getting user's current position
