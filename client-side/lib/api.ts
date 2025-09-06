@@ -130,6 +130,9 @@ class ApiClient {
     const url = `${this.baseURL}${endpoint}`
     const token = getToken()
 
+    console.log(`Making API request to: ${url}`)
+    console.log('Request options:', options)
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -149,6 +152,9 @@ class ApiClient {
     try {
       const response = await fetch(url, config)
       
+      console.log(`Response status: ${response.status}`)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+      
       // Handle text responses (like chatbot)
       if (response.headers.get('content-type')?.includes('text/plain')) {
         const text = await response.text()
@@ -161,6 +167,7 @@ class ApiClient {
 
       // Handle JSON responses
       const data = await response.json()
+      console.log('Response data:', data)
       
       if (!response.ok) {
         throw new Error(data.message || `HTTP error! status: ${response.status}`)
@@ -169,6 +176,8 @@ class ApiClient {
       return data
     } catch (error) {
       console.error('API request failed:', error)
+      console.error('URL:', url)
+      console.error('Config:', config)
       throw error
     }
   }
@@ -412,21 +421,19 @@ class ApiClient {
 export const api = new ApiClient()
 
 // Export individual API functions for convenience
-export const {
-  registerUser,
-  loginUser,
-  changePassword,
-  deleteAvatar,
-  deleteCoverImage,
-  updateAvatar,
-  updateCoverImage,
-  updateUserDetails,
-  registerPhase1User,
-  updatePhase2User,
-  findNearbyBuyers,
-  sendChatMessage,
-  addProduct,
-  updateProduct,
-  addReview,
-  logout,
-} = api
+export const registerUser = (userData: any) => api.registerUser(userData)
+export const loginUser = (credentials: any) => api.loginUser(credentials)
+export const changePassword = (data: any) => api.changePassword(data)
+export const deleteAvatar = () => api.deleteAvatar()
+export const deleteCoverImage = () => api.deleteCoverImage()
+export const updateAvatar = (avatar: File) => api.updateAvatar(avatar)
+export const updateCoverImage = (coverImage: File) => api.updateCoverImage(coverImage)
+export const updateUserDetails = (details: any) => api.updateUserDetails(details)
+export const registerPhase1User = (data: any) => api.registerPhase1User(data)
+export const updatePhase2User = (data: any) => api.updatePhase2User(data)
+export const findNearbyBuyers = (data: any) => api.findNearbyBuyers(data)
+export const sendChatMessage = (message: string) => api.sendChatMessage(message)
+export const addProduct = (data: any) => api.addProduct(data)
+export const updateProduct = (data: any) => api.updateProduct(data)
+export const addReview = (data: any) => api.addReview(data)
+export const logout = () => api.logout()

@@ -101,11 +101,14 @@ export function AddressRegistration({ onSuccess }: AddressRegistrationProps) {
     }
 
     setError("")
+    console.log("Submitting Phase1 registration with data:", formData)
 
     try {
-      await registerPhase1User(formData)
+      const result = await registerPhase1User(formData)
+      console.log("Phase1 registration successful:", result)
       onSuccess()
     } catch (error: any) {
+      console.error("Phase1 registration failed:", error)
       setError(error.message || "Registration failed")
     }
   }
