@@ -35,9 +35,16 @@ export function FloatingChatbot({ isOpen, onClose, isMinimized = false, onToggle
   // Convert chatbot messages to our Message format
   const messages: Message[] = [
     {
-      id: "1",
+      id: "welcome",
       content:
-        "👋 Hello! I'm your Junkjet AI assistant. I can help you with waste management questions, recycling tips, and navigating our three-phase system. How can I assist you today?",
+        "🌱 Welcome to Junkjet! I'm your AI assistant for sustainable waste management.\n\n" +
+        "I can help you with:\n" +
+        "• 📦 Buying and selling waste materials\n" +
+        "• 🔍 Finding nearby buyers or sellers\n" +
+        "• 💰 Getting price estimates\n" +
+        "• 📚 Understanding our 3-phase ecosystem\n" +
+        "• 🌍 Environmental impact tracking\n\n" +
+        "What would you like to know?",
       sender: "bot",
       timestamp: new Date(),
     },
@@ -139,8 +146,8 @@ export function FloatingChatbot({ isOpen, onClose, isMinimized = false, onToggle
                       <div
                         className={`rounded-2xl px-4 py-3 shadow-sm border ${
                           message.sender === "user"
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-200 dark:border-blue-800"
-                            : "bg-background border-border dark:bg-card dark:border-border"
+                            ? "chatbot-message-user text-white border-blue-200 dark:border-blue-800"
+                            : "chatbot-message-bot text-foreground"
                         }`}
                       >
                         <p className={`text-sm leading-relaxed ${
@@ -213,7 +220,7 @@ export function FloatingChatbot({ isOpen, onClose, isMinimized = false, onToggle
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <Card className="w-96 shadow-2xl border-2 border-border dark:border-border bg-background/95 dark:bg-card/95 backdrop-blur-sm">
+      <Card className="w-96 max-w-[calc(100vw-2rem)] floating-chatbot-shadow border-2 border-border dark:border-border bg-background/95 dark:bg-card/95 backdrop-blur-sm">
         {chatContent}
       </Card>
     </div>
@@ -254,7 +261,7 @@ export function FloatingChatbotButton() {
           >
             <MessageCircle className="h-6 w-6 transition-transform group-hover:scale-110" />
             {hasNewMessage && (
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white chatbot-pulse"></div>
             )}
           </Button>
         </div>
