@@ -39,7 +39,11 @@ const chatbot = asyncHandler(async (req, res) => {
 
     // If response is not "TrueFlag" or "FalseFlag", send it back directly
     if (response.trim() !== "TrueFlag1234" && response.trim() !== "FalseFlag1234") {
-      return res.status(202).send(response);
+      return res.status(202).json({
+        success: true,
+        message: response,
+        data: response
+      });
     }
 
     // Check if user is logged in
@@ -107,9 +111,17 @@ const chatbot = asyncHandler(async (req, res) => {
 
       // console.log(userDetails.trim());
       
-      return res.status(202).send(userDetails.trim());
+      return res.status(202).json({
+        success: true,
+        message: "Users found successfully",
+        data: userDetails.trim()
+      });
     } else {
-      return res.status(404).send("No users found for the given coordinates.");
+      return res.status(404).json({
+        success: false,
+        message: "No users found for the given coordinates.",
+        data: null
+      });
     }
   } catch (error) {
     // Handle custom errors

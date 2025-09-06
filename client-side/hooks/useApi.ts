@@ -203,9 +203,20 @@ export function useChatbot() {
       const response = await api.sendChatMessage(message)
       console.log('Chatbot API response:', response)
       
-      // Add bot response to chat
+      // Add bot response to chat - try to extract text from different response formats
+      let responseText = '';
+      if (response.data) {
+        responseText = response.data;
+      } else if (response.message) {
+        responseText = response.message;
+      } else if (typeof response === 'string') {
+        responseText = response;
+      } else {
+        responseText = 'No response received';
+      }
+      
       const botMessage = { 
-        text: response.data || response.message || 'No response received', 
+        text: responseText, 
         isUser: false, 
         timestamp: new Date() 
       }
