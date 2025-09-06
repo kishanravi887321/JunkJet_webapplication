@@ -164,4 +164,27 @@
       opacity: 0.7;
     }
   }
+
+  /* Chatbot Panel Responsive Styles */
+  .chatbot-panel-mobile {
+    @media (max-width: 768px) {
+      width: 100% !important;
+      left: 0 !important;
+      right: 0 !important;
+    }
+  }
+
+  .chatbot-resize-handle {
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .chatbot-resize-handle:hover {
+    background: linear-gradient(to right, rgba(16, 185, 129, 0.5), rgba(5, 150, 105, 0.5));
+    width: 4px;
+  }
+
+  .chatbot-panel-backdrop {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
 }
