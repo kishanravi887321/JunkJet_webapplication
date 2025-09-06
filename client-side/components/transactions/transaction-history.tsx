@@ -118,8 +118,8 @@ export function TransactionHistory() {
       await addTransactionRating(ratingForm.transactionId, {
         rating: ratingForm.rating,
         feedback: ratingForm.feedback,
-        raterEmail: user.email,
-        ratingType: ratingForm.ratingType
+        email: user.email,
+        raterType: ratingForm.ratingType
       })
 
       setRatingForm({
