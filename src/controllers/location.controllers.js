@@ -54,6 +54,7 @@ if (maxKm>101) {
     if (!users || users.length === 0) {
         throw new ApiError(404, "No users found within the specified range.");
     }
+    console.log(users,"users found")
 
     return res.status(200).json({
         success: true,
