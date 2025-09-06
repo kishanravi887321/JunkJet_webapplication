@@ -30,8 +30,12 @@ const chatbot = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Invalid input: User input must be a non-empty string.");
     }
 
-    // Get the Gemini response
-    const response = await getGeminiResponse(userInput);
+    // Check if user is logged in and get user context
+    const user = await User.findOne({ email: "kishanravi887321@gmail.com" });
+    const userId = user ? user._id.toString() : null;
+    
+    // Get the Gemini response with user context
+    const response = await getGeminiResponse(userInput, userId);
 
     if (!response) {
       throw new ApiError(404, "Something went wrong while processing your request.");
@@ -47,9 +51,6 @@ const chatbot = asyncHandler(async (req, res) => {
     }
 
     // Check if user is logged in
-    // const userEmail = req.user?.email || ""; // Assuming email is stored in req.user for logged-in users
-    const user = await User.findOne({ email: "kishanravi887321@gmail.com" });
-
     if (!user) {
       throw new ApiError(404, "Login required!");
     }
