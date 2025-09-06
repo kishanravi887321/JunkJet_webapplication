@@ -19,6 +19,7 @@ import {
   Sun,
   Moon,
   Recycle,
+  Package,
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import type { Route } from "@/lib/routes"
@@ -36,6 +37,7 @@ const iconMap = {
   Search,
   Sun,
   Moon,
+  Package,
 }
 
 interface NavbarProps {
