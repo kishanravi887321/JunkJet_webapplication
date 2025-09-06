@@ -415,6 +415,83 @@ class ApiClient {
     })
   }
 
+  // Analytics API Methods
+  async getAnalyticsSummary(email?: string): Promise<ApiResponse<{
+    totalWasteSold: string
+    totalEarnings: string
+    activeBuyers: number
+    impactScore: number
+    growthRate: number
+    efficiencyGain: number
+  }>> {
+    const params = email ? `?email=${encodeURIComponent(email)}` : ''
+    return this.request<any>(`/api/analytics/summary${params}`, {
+      method: 'GET',
+    })
+  }
+
+  async getWasteTrend(email?: string): Promise<ApiResponse<Array<{
+    month: string
+    weight: number
+    earnings: number
+  }>>> {
+    const params = email ? `?email=${encodeURIComponent(email)}` : ''
+    return this.request<any>(`/api/analytics/waste-trend${params}`, {
+      method: 'GET',
+    })
+  }
+
+  async getMaterialDistribution(email?: string): Promise<ApiResponse<Array<{
+    name: string
+    value: number
+    color: string
+  }>>> {
+    const params = email ? `?email=${encodeURIComponent(email)}` : ''
+    return this.request<any>(`/api/analytics/material-distribution${params}`, {
+      method: 'GET',
+    })
+  }
+
+  async getBuyerPerformance(email?: string): Promise<ApiResponse<Array<{
+    name: string
+    purchases: number
+    amount: number
+  }>>> {
+    const params = email ? `?email=${encodeURIComponent(email)}` : ''
+    return this.request<any>(`/api/analytics/buyer-performance${params}`, {
+      method: 'GET',
+    })
+  }
+
+  async getEarningsTrend(email?: string): Promise<ApiResponse<Array<{
+    month: string
+    amount: number
+  }>>> {
+    const params = email ? `?email=${encodeURIComponent(email)}` : ''
+    return this.request<any>(`/api/analytics/earnings-trend${params}`, {
+      method: 'GET',
+    })
+  }
+
+  async addWasteTransaction(data: {
+    buyerEmail: string
+    materialType: string
+    weight: number
+    pricePerKg: number
+    buyerOrgName: string
+    location: {
+      city: string
+      state: string
+      country: string
+    }
+    email?: string
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>('/api/analytics/transaction', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
   // Auth Methods
   logout(): void {
     removeToken()
@@ -440,4 +517,10 @@ export const sendChatMessage = (message: string) => api.sendChatMessage(message)
 export const addProduct = (data: Parameters<typeof api.addProduct>[0]) => api.addProduct(data)
 export const updateProduct = (data: Parameters<typeof api.updateProduct>[0]) => api.updateProduct(data)
 export const addReview = (data: Parameters<typeof api.addReview>[0]) => api.addReview(data)
+export const getAnalyticsSummary = (email?: string) => api.getAnalyticsSummary(email)
+export const getWasteTrend = (email?: string) => api.getWasteTrend(email)
+export const getMaterialDistribution = (email?: string) => api.getMaterialDistribution(email)
+export const getBuyerPerformance = (email?: string) => api.getBuyerPerformance(email)
+export const getEarningsTrend = (email?: string) => api.getEarningsTrend(email)
+export const addWasteTransaction = (data: Parameters<typeof api.addWasteTransaction>[0]) => api.addWasteTransaction(data)
 export const logout = () => api.logout()

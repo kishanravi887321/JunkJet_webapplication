@@ -19,57 +19,148 @@ import {
   BarChart,
   Bar
 } from "recharts"
+import { useEffect, useState } from "react"
+import { useAuth } from "@/hooks/use-auth"
+import {
+  getAnalyticsSummary,
+  getWasteTrend,
+  getMaterialDistribution,
+  getBuyerPerformance,
+  getEarningsTrend
+} from "@/lib/api"
+
+interface AnalyticsStats {
+  totalWasteSold: string
+  totalEarnings: string
+  activeBuyers: number
+  impactScore: number
+  growthRate: number
+  efficiencyGain: number
+}
+
+interface WasteTrendData {
+  month: string
+  weight: number
+  earnings: number
+}
+
+interface MaterialData {
+  name: string
+  value: number
+  color: string
+}
+
+interface BuyerPerformanceData {
+  name: string
+  purchases: number
+  amount: number
+}
+
+interface EarningsTrendData {
+  month: string
+  amount: number
+}
 
 export function Phase1Analytics() {
-  // Mock data - in real app, this would come from API
-  const stats = {
-    totalWasteSold: "48.2",
-    totalEarnings: "₹15,640",
-    activeBuyers: 12,
-    impactScore: 87.5,
-    growthRate: 15.8,
-    efficiencyGain: 8.2
-  }
+  const { user } = useAuth()
+  const [stats, setStats] = useState<AnalyticsStats>({
+    totalWasteSold: "0",
+    totalEarnings: "₹0",
+    activeBuyers: 0,
+    impactScore: 0,
+    growthRate: 0,
+    efficiencyGain: 0
+  })
+  const [wasteTrendData, setWasteTrendData] = useState<WasteTrendData[]>([])
+  const [materialData, setMaterialData] = useState<MaterialData[]>([])
+  const [buyerPerformanceData, setBuyerPerformanceData] = useState<BuyerPerformanceData[]>([])
+  const [earningsTrendData, setEarningsTrendData] = useState<EarningsTrendData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Waste selling trend data
-  const wasteTrendData = [
-    { month: "Jan", weight: 2800, earnings: 2100 },
-    { month: "Feb", weight: 3200, earnings: 2400 },
-    { month: "Mar", weight: 4800, earnings: 3600 },
-    { month: "Apr", weight: 3900, earnings: 2925 },
-    { month: "May", weight: 5200, earnings: 3900 },
-    { month: "Jun", weight: 4500, earnings: 3375 }
-  ]
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      if (!user?.email) return
 
-  // Material type distribution
-  const materialData = [
-    { name: "Plastic", value: 35, color: "#22c55e" },
-    { name: "Paper", value: 25, color: "#84cc16" },
-    { name: "Metal", value: 20, color: "#3b82f6" },
-    { name: "Glass", value: 12, color: "#f97316" },
-    { name: "Electronic", value: 8, color: "#8b5cf6" }
-  ]
+      try {
+        setLoading(true)
+        setError(null)
 
-  // Monthly earnings trend
-  const earningsTrendData = [
-    { month: "Jan", amount: 2100 },
-    { month: "Feb", amount: 2400 },
-    { month: "Mar", amount: 3600 },
-    { month: "Apr", amount: 2925 },
-    { month: "May", amount: 3900 },
-    { month: "Jun", amount: 3375 }
-  ]
+        // Fetch all analytics data in parallel
+        const [
+          summaryResponse,
+          wasteTrendResponse,
+          materialResponse,
+          buyerResponse,
+          earningsResponse
+        ] = await Promise.all([
+          getAnalyticsSummary(user.email),
+          getWasteTrend(user.email),
+          getMaterialDistribution(user.email),
+          getBuyerPerformance(user.email),
+          getEarningsTrend(user.email)
+        ])
 
-  // Top buyer performance
-  const buyerPerformanceData = [
-    { name: "GreenTech Recyclers", purchases: 8, amount: 4200 },
-    { name: "EcoWaste Solutions", purchases: 6, amount: 3800 },
-    { name: "Sustainable Materials", purchases: 5, amount: 2900 },
-    { name: "Clean Earth Ltd", purchases: 4, amount: 2400 },
-    { name: "Urban Waste Co", purchases: 3, amount: 2340 }
-  ]
+        // Update state with real data
+        if (summaryResponse.data) {
+          setStats(summaryResponse.data)
+        }
+        if (wasteTrendResponse.data) {
+          setWasteTrendData(wasteTrendResponse.data)
+        }
+        if (materialResponse.data) {
+          setMaterialData(materialResponse.data)
+        }
+        if (buyerResponse.data) {
+          setBuyerPerformanceData(buyerResponse.data)
+        }
+        if (earningsResponse.data) {
+          setEarningsTrendData(earningsResponse.data)
+        }
+      } catch (err) {
+        console.error('Error fetching analytics data:', err)
+        setError('Failed to load analytics data. Please try again.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAnalyticsData()
+  }, [user?.email])
 
   const formatCurrency = (value: number) => `₹${value.toLocaleString('en-IN')}`
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-bold">Analytics Overview</h2>
+          <p className="text-muted-foreground">Loading your analytics data...</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-bold">Analytics Overview</h2>
+          <p className="text-red-500">{error}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
