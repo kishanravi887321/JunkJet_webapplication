@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { FloatingChatbotButton } from "@/components/floating-chatbot"
 import { getRoutes } from "@/lib/routes"
 import { Suspense } from "react"
 import "./globals.css"
@@ -37,6 +38,9 @@ export default async function RootLayout({
               <Suspense fallback={<div>Loading...</div>}>
                 <Footer />
               </Suspense>
+              
+              {/* Floating Chatbot */}
+              <FloatingChatbotButton />
             </div>
           </AuthProvider>
         </ThemeProvider>
