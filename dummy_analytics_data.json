@@ -1,0 +1,134 @@
+{
+  "_id": "68bc980da3c1d98ee8c835bf",
+  "user": "68bc7bec0258fff230890365",
+  "__v": 0,
+  "activeBuyers": [
+    {
+      "buyerId": "68bc7bec0258fff230890366",
+      "orgName": "EcoRecycle Industries",
+      "totalPurchases": 8,
+      "totalAmount": 4200,
+      "lastTransactionDate": "2025-08-15T10:30:00.000Z"
+    },
+    {
+      "buyerId": "68bc7bec0258fff230890367",
+      "orgName": "Green Solutions Ltd",
+      "totalPurchases": 6,
+      "totalAmount": 3800,
+      "lastTransactionDate": "2025-08-20T14:15:00.000Z"
+    },
+    {
+      "buyerId": "68bc7bec0258fff230890368",
+      "orgName": "Sustainable Materials Co",
+      "totalPurchases": 5,
+      "totalAmount": 2900,
+      "lastTransactionDate": "2025-08-25T09:45:00.000Z"
+    },
+    {
+      "buyerId": "68bc7bec0258fff230890369",
+      "orgName": "Urban Waste Management",
+      "totalPurchases": 4,
+      "totalAmount": 2400,
+      "lastTransactionDate": "2025-09-01T16:20:00.000Z"
+    },
+    {
+      "buyerId": "68bc7bec0258fff23089036a",
+      "orgName": "Clean Earth Ltd",
+      "totalPurchases": 3,
+      "totalAmount": 2340,
+      "lastTransactionDate": "2025-09-05T11:10:00.000Z"
+    }
+  ],
+  "createdAt": "2025-09-06T20:22:37.081Z",
+  "goals": {
+    "currentMonthProgress": 3250,
+    "monthlyTarget": 18000
+  },
+  "impactScore": 87,
+  "lastUpdated": "2025-09-06T20:25:55.484Z",
+  "materialStats": [
+    {
+      "materialType": "plastic",
+      "totalWeight": 125.5,
+      "totalEarnings": 1883,
+      "transactionCount": 12,
+      "percentage": 35
+    },
+    {
+      "materialType": "paper",
+      "totalWeight": 89.2,
+      "totalEarnings": 714,
+      "transactionCount": 8,
+      "percentage": 25
+    },
+    {
+      "materialType": "metal",
+      "totalWeight": 71.8,
+      "totalEarnings": 2513,
+      "transactionCount": 6,
+      "percentage": 20
+    },
+    {
+      "materialType": "glass",
+      "totalWeight": 43.1,
+      "totalEarnings": 216,
+      "transactionCount": 4,
+      "percentage": 12
+    },
+    {
+      "materialType": "electronic",
+      "totalWeight": 28.7,
+      "totalEarnings": 3444,
+      "transactionCount": 3,
+      "percentage": 8
+    }
+  ],
+  "monthlyStats": [
+    {
+      "month": 4,
+      "year": 2025,
+      "totalWeight": 45.2,
+      "totalEarnings": 1580,
+      "transactionCount": 5
+    },
+    {
+      "month": 5,
+      "year": 2025,
+      "totalWeight": 62.8,
+      "totalEarnings": 2140,
+      "transactionCount": 7
+    },
+    {
+      "month": 6,
+      "year": 2025,
+      "totalWeight": 78.5,
+      "totalEarnings": 2650,
+      "transactionCount": 9
+    },
+    {
+      "month": 7,
+      "year": 2025,
+      "totalWeight": 89.3,
+      "totalEarnings": 3200,
+      "transactionCount": 11
+    },
+    {
+      "month": 8,
+      "year": 2025,
+      "totalWeight": 95.7,
+      "totalEarnings": 3780,
+      "transactionCount": 13
+    },
+    {
+      "month": 9,
+      "year": 2025,
+      "totalWeight": 86.8,
+      "totalEarnings": 3250,
+      "transactionCount": 8
+    }
+  ],
+  "totalEarnings": 15640,
+  "totalTransactions": 33,
+  "totalWasteSold": 358.3,
+  "updatedAt": "2025-09-06T20:25:55.484Z"
+}
