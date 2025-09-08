@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Select,
   SelectContent,
@@ -27,29 +28,6 @@ interface WasteItem {
   price: string
   productImage?: string
   createdAt: string
-  owner: {
-    _id: string
-    fullName: string
-    email: string
-    avatar?: string
-  }
-}
-
-interface WasteItem {
-  _id: string
-  name: string
-  tag: string
-  productId: string
-  quantity: string
-  materialType: string
-  description: string
-  price: string
-  productImage?: string
-  createdAt: string
-  user: {
-    fullName: string
-    location?: string
-  }
 }
 
 const materialTypes = ["all", "plastic", "paper", "metal", "glass", "electronic", "organic", "textile", "mixed"]
@@ -58,98 +36,35 @@ export function AvailableWaste() {
   const [wasteItems, setWasteItems] = useState<WasteItem[]>([])
   const [filteredItems, setFilteredItems] = useState<WasteItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [materialFilter, setMaterialFilter] = useState("all")
   const [priceFilter, setPriceFilter] = useState("all")
 
-  // Mock data - in real app, this would come from API
+  // Fetch products from API
   useEffect(() => {
-    const mockWasteItems: WasteItem[] = [
-      {
-        _id: "1",
-        name: "Plastic Bottles",
-        tag: "clean, recyclable",
-        productId: "WASTE-1234567890-123",
-        quantity: "50 pieces",
-        materialType: "plastic",
-        description: "Clean plastic water bottles, various sizes. Good condition for recycling.",
-        price: "₹2,085",
-        productImage: "/pile-of-plastic-bottles.png",
-        createdAt: "2024-01-15T10:30:00Z",
-        user: {
-          fullName: "John Smith",
-          location: "Downtown Area",
-        },
-      },
-      {
-        _id: "2",
-        name: "Cardboard Boxes",
-        tag: "flat-packed, dry",
-        productId: "WASTE-1234567891-124",
-        quantity: "20 kg",
-        materialType: "paper",
-        description: "Various sized cardboard boxes, flattened and dry. Perfect for recycling.",
-        price: "₹1,251",
-        createdAt: "2024-01-14T14:20:00Z",
-        user: {
-          fullName: "Sarah Johnson",
-          location: "Residential District",
-        },
-      },
-      {
-        _id: "3",
-        name: "Aluminum Cans",
-        tag: "clean, sorted",
-        productId: "WASTE-1234567892-125",
-        quantity: "100 cans",
-        materialType: "metal",
-        description: "Clean aluminum beverage cans, sorted and ready for processing.",
-        price: "₹3,336",
-        productImage: "/aluminum-cans.jpg",
-        createdAt: "2024-01-13T09:15:00Z",
-        user: {
-          fullName: "Mike Davis",
-          location: "Industrial Zone",
-        },
-      },
-      {
-        _id: "4",
-        name: "Glass Bottles",
-        tag: "mixed colors, clean",
-        productId: "WASTE-1234567893-126",
-        quantity: "30 bottles",
-        materialType: "glass",
-        description: "Mixed color glass bottles, cleaned and sorted by color.",
-        price: "₹1,668",
-        createdAt: "2024-01-12T16:45:00Z",
-        user: {
-          fullName: "Emily Chen",
-          location: "City Center",
-        },
-      },
-      {
-        _id: "5",
-        name: "Old Electronics",
-        tag: "working condition",
-        productId: "WASTE-1234567894-127",
-        quantity: "5 devices",
-        materialType: "electronic",
-        description: "Old smartphones and tablets in working condition. Good for refurbishment.",
-        price: "₹6,672",
-        productImage: "/old-electronics.jpg",
-        createdAt: "2024-01-11T11:30:00Z",
-        user: {
-          fullName: "David Wilson",
-          location: "Tech District",
-        },
-      },
-    ]
+    const fetchWasteItems = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        const response = await getAllProducts({ limit: 100 })
+        
+        if (response.success && response.data) {
+          setWasteItems(response.data)
+        } else {
+          throw new Error(response.message || 'Failed to fetch products')
+        }
+      } catch (error) {
+        console.error('Error fetching waste items:', error)
+        setError(error instanceof Error ? error.message : 'Failed to fetch waste items')
+        setWasteItems([])
+      } finally {
+        setLoading(false)
+      }
+    }
 
-    setTimeout(() => {
-      setWasteItems(mockWasteItems)
-      setFilteredItems(mockWasteItems)
-      setLoading(false)
-    }, 1000)
+    fetchWasteItems()
   }, [])
 
   useEffect(() => {
