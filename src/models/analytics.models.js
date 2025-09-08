@@ -123,7 +123,8 @@ wasteTransactionSchema.index({ user: 1, transactionDate: -1 });
 wasteTransactionSchema.index({ buyer: 1, transactionDate: -1 });
 wasteTransactionSchema.index({ materialType: 1 });
 
-phase1AnalyticsSchema.index({ user: 1 });
+// Note: user field in phase1AnalyticsSchema already has unique: true which creates an index
+// No need for manual index: phase1AnalyticsSchema.index({ user: 1 });
 
 const WasteTransaction = mongoose.model("WasteTransaction", wasteTransactionSchema);
 const Phase1Analytics = mongoose.model("Phase1Analytics", phase1AnalyticsSchema);
