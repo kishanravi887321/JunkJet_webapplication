@@ -10,7 +10,7 @@ export function BuyerStats() {
   const stats = {
     totalPurchases: 156,
     totalProcessed: "2,340 kg",
-    totalRevenue: "$12,450",
+    totalRevenue: "₹10,37,250",
     activeSources: 24,
     monthlyTarget: 3000, // kg
     currentMonth: 2340, // kg

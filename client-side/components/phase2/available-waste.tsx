@@ -48,7 +48,7 @@ export function AvailableWaste() {
         quantity: "50 pieces",
         materialType: "plastic",
         description: "Clean plastic water bottles, various sizes. Good condition for recycling.",
-        price: "$25",
+        price: "₹2,085",
         productImage: "/pile-of-plastic-bottles.png",
         createdAt: "2024-01-15T10:30:00Z",
         user: {
@@ -64,7 +64,7 @@ export function AvailableWaste() {
         quantity: "20 kg",
         materialType: "paper",
         description: "Various sized cardboard boxes, flattened and dry. Perfect for recycling.",
-        price: "$15",
+        price: "₹1,251",
         createdAt: "2024-01-14T14:20:00Z",
         user: {
           fullName: "Sarah Johnson",
@@ -79,7 +79,7 @@ export function AvailableWaste() {
         quantity: "100 cans",
         materialType: "metal",
         description: "Clean aluminum beverage cans, sorted and ready for processing.",
-        price: "$40",
+        price: "₹3,336",
         productImage: "/aluminum-cans.jpg",
         createdAt: "2024-01-13T09:15:00Z",
         user: {
@@ -95,7 +95,7 @@ export function AvailableWaste() {
         quantity: "30 bottles",
         materialType: "glass",
         description: "Mixed color glass bottles, cleaned and sorted by color.",
-        price: "$20",
+        price: "₹1,668",
         createdAt: "2024-01-12T16:45:00Z",
         user: {
           fullName: "Emily Chen",
@@ -110,7 +110,7 @@ export function AvailableWaste() {
         quantity: "5 devices",
         materialType: "electronic",
         description: "Old smartphones and tablets in working condition. Good for refurbishment.",
-        price: "$80",
+        price: "₹6,672",
         productImage: "/old-electronics.jpg",
         createdAt: "2024-01-11T11:30:00Z",
         user: {

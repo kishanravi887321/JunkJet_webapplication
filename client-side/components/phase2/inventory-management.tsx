@@ -140,7 +140,7 @@ export function InventoryManagement() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">${totalInvestment}</div>
+            <div className="text-2xl font-bold text-primary">₹{totalInvestment}</div>
             <p className="text-xs text-muted-foreground">Money invested in materials</p>
           </CardContent>
         </Card>
@@ -151,7 +151,7 @@ export function InventoryManagement() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">${totalValue}</div>
+            <div className="text-2xl font-bold text-primary">₹{totalValue}</div>
             <p className="text-xs text-muted-foreground">Potential sale value</p>
           </CardContent>
         </Card>
@@ -162,7 +162,7 @@ export function InventoryManagement() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">${potentialProfit}</div>
+            <div className="text-2xl font-bold text-primary">₹{potentialProfit}</div>
             <p className="text-xs text-muted-foreground">
               {((potentialProfit / totalInvestment) * 100).toFixed(1)}% margin
             </p>
@@ -243,11 +243,11 @@ export function InventoryManagement() {
                             </div>
                             <div>
                               <span className="text-muted-foreground">Purchase: </span>
-                              <span className="font-medium">${item.purchasePrice}</span>
+                              <span className="font-medium">₹{item.purchasePrice}</span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Expected Sale: </span>
-                              <span className="font-medium text-primary">${item.expectedSalePrice}</span>
+                              <span className="font-medium text-primary">₹{item.expectedSalePrice}</span>
                             </div>
                           </div>
 
@@ -324,7 +324,7 @@ export function InventoryManagement() {
                           <div>
                             <h4 className="font-semibold">{item.name}</h4>
                             <p className="text-sm text-muted-foreground">
-                              {item.quantity} {item.unit} • Expected: ${item.expectedSalePrice}
+                              {item.quantity} {item.unit} • Expected: ₹{item.expectedSalePrice}
                             </p>
                           </div>
                           <div className="flex gap-2">
