@@ -141,7 +141,94 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
   });
 
+// Get all products
+const getAllProducts = asyncHandler(async (req, res) => {
+  try {
+    const { materialType, limit = 50, page = 1 } = req.query;
+    
+    // Build filter object
+    const filter = {};
+    if (materialType && materialType !== 'all') {
+      filter.materialType = materialType;
+    }
+    
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Fetch products with populated user data
+    const products = await Product.find(filter)
+      .populate('owner', 'fullName email avatar')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(skip);
+    
+    // Get total count for pagination
+    const totalProducts = await Product.countDocuments(filter);
+    
+    return res.status(200).json({
+      success: true,
+      message: "Products fetched successfully",
+      data: products,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalProducts / parseInt(limit)),
+        totalProducts,
+        hasNext: skip + products.length < totalProducts,
+        hasPrev: parseInt(page) > 1
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message || "Something went wrong while fetching products.",
+    });
+  }
+});
+
+// Get products by user email
+const getUserProducts = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required"
+      });
+    }
+    
+    // Find user first
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    
+    // Fetch user's products
+    const products = await Product.find({ owner: user._id })
+      .populate('owner', 'fullName email avatar')
+      .sort({ createdAt: -1 });
+    
+    return res.status(200).json({
+      success: true,
+      message: "User products fetched successfully",
+      data: products
+    });
+  } catch (error) {
+    console.error("Error fetching user products:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message || "Something went wrong while fetching user products.",
+    });
+  }
+});
+
 
   
 
-  export {addProduct,updateProduct}
+  export {addProduct,updateProduct, getAllProducts, getUserProducts}

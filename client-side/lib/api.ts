@@ -403,6 +403,30 @@ class ApiClient {
     })
   }
 
+  async getAllProducts(params?: {
+    materialType?: string
+    limit?: number
+    page?: number
+  }): Promise<ApiResponse<Product[]>> {
+    const searchParams = new URLSearchParams()
+    if (params?.materialType) searchParams.append('materialType', params.materialType)
+    if (params?.limit) searchParams.append('limit', params.limit.toString())
+    if (params?.page) searchParams.append('page', params.page.toString())
+    
+    const queryString = searchParams.toString()
+    const url = queryString ? `/product/all?${queryString}` : '/product/all'
+    
+    return this.request<Product[]>(url, {
+      method: 'GET',
+    })
+  }
+
+  async getUserProducts(email: string): Promise<ApiResponse<Product[]>> {
+    return this.request<Product[]>(`/product/user?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+    })
+  }
+
   // Review API Methods
   async addReview(data: {
     productId: string
@@ -599,6 +623,8 @@ export const findNearbyBuyers = (data: Parameters<typeof api.findNearbyBuyers>[0
 export const sendChatMessage = (message: string) => api.sendChatMessage(message)
 export const addProduct = (data: Parameters<typeof api.addProduct>[0]) => api.addProduct(data)
 export const updateProduct = (data: Parameters<typeof api.updateProduct>[0]) => api.updateProduct(data)
+export const getAllProducts = (params?: Parameters<typeof api.getAllProducts>[0]) => api.getAllProducts(params)
+export const getUserProducts = (email: string) => api.getUserProducts(email)
 export const addReview = (data: Parameters<typeof api.addReview>[0]) => api.addReview(data)
 export const getAnalyticsSummary = (email?: string) => api.getAnalyticsSummary(email)
 export const getWasteTrend = (email?: string) => api.getWasteTrend(email)

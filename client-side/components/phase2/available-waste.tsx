@@ -1,14 +1,39 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, Package, MapPin, Calendar, Filter } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Search, Filter, MapPin, Calendar, Package, Loader2 } from "lucide-react"
+import { getAllProducts } from "@/lib/api"
+
+interface WasteItem {
+  _id: string
+  name: string
+  tag: string
+  productId: string
+  quantity: string
+  materialType: string
+  description: string
+  price: string
+  productImage?: string
+  createdAt: string
+  owner: {
+    _id: string
+    fullName: string
+    email: string
+    avatar?: string
+  }
+}
 
 interface WasteItem {
   _id: string
