@@ -4,11 +4,12 @@ import { useState } from "react"
 import { AvailableWaste } from "./available-waste"
 import { InventoryManagement } from "./inventory-management"
 import { BuyerStats } from "./buyer-stats"
+import { AnalyticsDashboard } from "./analytics-dashboard"
 import { OrganizationSetup } from "./organization-setup"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Building, Search, Package, BarChart3, CheckCircle, Edit } from "lucide-react"
+import { Building, Search, Package, BarChart3, CheckCircle, Edit, TrendingUp } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 
 interface Phase2DashboardProps {
@@ -43,10 +44,14 @@ export function Phase2Dashboard({ refreshKey }: Phase2DashboardProps) {
 
   return (
     <Tabs defaultValue="dashboard" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="dashboard" className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4" />
-          <span className="hidden sm:inline">Dashboard</span>
+          <span className="hidden sm:inline">Overview</span>
+        </TabsTrigger>
+        <TabsTrigger value="analytics" className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4" />
+          <span className="hidden sm:inline">Analytics</span>
         </TabsTrigger>
         <TabsTrigger value="available-waste" className="flex items-center gap-2">
           <Search className="h-4 w-4" />
@@ -64,12 +69,16 @@ export function Phase2Dashboard({ refreshKey }: Phase2DashboardProps) {
 
       <TabsContent value="dashboard" className="space-y-6">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold">Buyer Dashboard</h2>
+          <h2 className="text-2xl font-bold">Buyer Overview</h2>
           <p className="text-muted-foreground">
-            Monitor your waste sourcing and business performance
+            Quick summary of your waste sourcing performance
           </p>
         </div>
         <BuyerStats key={refreshKey} />
+      </TabsContent>
+
+      <TabsContent value="analytics" className="space-y-6">
+        <AnalyticsDashboard />
       </TabsContent>
 
       <TabsContent value="available-waste" className="space-y-6">
