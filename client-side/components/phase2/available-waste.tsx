@@ -234,9 +234,9 @@ export function AvailableWaste() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Prices</SelectItem>
-                  <SelectItem value="low">Under $30</SelectItem>
-                  <SelectItem value="medium">$30 - $60</SelectItem>
-                  <SelectItem value="high">Over $60</SelectItem>
+                  <SelectItem value="low">Under ₹2,500</SelectItem>
+                  <SelectItem value="medium">₹2,500 - ₹5,000</SelectItem>
+                  <SelectItem value="high">Over ₹5,000</SelectItem>
                 </SelectContent>
               </Select>
             </div>

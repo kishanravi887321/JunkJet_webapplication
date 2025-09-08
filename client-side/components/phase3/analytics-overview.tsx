@@ -91,7 +91,7 @@ export function AnalyticsOverview() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">${(totalCost / 1000).toFixed(0)}K</div>
+            <div className="text-2xl font-bold text-primary">₹{(totalCost / 1000).toFixed(0)}K</div>
             <div className="flex items-center text-xs text-muted-foreground">
               {costEfficiency > 0 ? (
                 <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
@@ -153,7 +153,7 @@ export function AnalyticsOverview() {
                   strokeWidth={2}
                   name="Waste (kg)"
                 />
-                <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#2196f3" strokeWidth={2} name="Cost ($)" />
+                <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#2196f3" strokeWidth={2} name="Cost (₹)" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

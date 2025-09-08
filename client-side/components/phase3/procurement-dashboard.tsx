@@ -338,10 +338,10 @@ export function ProcurementDashboard() {
                           </div>
                           <div className="text-right">
                             <div className="text-2xl font-bold text-primary">
-                              ${opportunity.totalPrice.toLocaleString()}
+                              ₹{opportunity.totalPrice.toLocaleString()}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              ${opportunity.pricePerUnit}/{opportunity.unit}
+                              ₹{opportunity.pricePerUnit}/{opportunity.unit}
                             </div>
                           </div>
                         </div>
@@ -415,7 +415,7 @@ export function ProcurementDashboard() {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
                             <span className="text-muted-foreground">Contract Value: </span>
-                            <span className="font-medium">${contract.contractValue.toLocaleString()}</span>
+                            <span className="font-medium">₹{contract.contractValue.toLocaleString()}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Schedule: </span>
@@ -454,7 +454,7 @@ export function ProcurementDashboard() {
                 <CardTitle>Total Procurement Value</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-primary">$150K</div>
+                <div className="text-3xl font-bold text-primary">₹12.5L</div>
                 <p className="text-sm text-muted-foreground">Active contracts this month</p>
               </CardContent>
             </Card>
