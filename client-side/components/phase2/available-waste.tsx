@@ -107,7 +107,7 @@ export function AvailableWaste() {
 
   const handleContactSeller = (item: WasteItem) => {
     // In real app, this would open a contact modal or redirect to messaging
-    alert(`Contacting ${item.user.fullName} about ${item.name}`)
+    alert(`Contacting ${item.owner.fullName} about ${item.name}`)
   }
 
   if (loading) {

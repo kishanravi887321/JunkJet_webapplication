@@ -99,6 +99,14 @@ export interface Product {
   description: string
   price: string
   reviews?: string[]
+  createdAt: string
+  updatedAt: string
+  owner: {
+    _id: string
+    fullName: string
+    email: string
+    avatar?: string
+  }
 }
 
 export interface Review {
