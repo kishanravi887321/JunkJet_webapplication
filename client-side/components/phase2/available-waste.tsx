@@ -15,26 +15,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Search, Filter, MapPin, Calendar, Package, Loader2 } from "lucide-react"
-import { getAllProducts } from "@/lib/api"
-
-interface WasteItem {
-  _id: string
-  name: string
-  tag: string
-  productId: string
-  quantity: string
-  materialType: string
-  description: string
-  price: string
-  productImage?: string
-  createdAt: string
-}
+import { getAllProducts, Product } from "@/lib/api"
 
 const materialTypes = ["all", "plastic", "paper", "metal", "glass", "electronic", "organic", "textile", "mixed"]
 
 export function AvailableWaste() {
-  const [wasteItems, setWasteItems] = useState<WasteItem[]>([])
-  const [filteredItems, setFilteredItems] = useState<WasteItem[]>([])
+  const [wasteItems, setWasteItems] = useState<Product[]>([])
+  const [filteredItems, setFilteredItems] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
