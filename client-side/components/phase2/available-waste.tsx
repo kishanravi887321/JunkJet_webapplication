@@ -92,7 +92,7 @@ export function AvailableWaste() {
     setFilteredItems(filtered)
   }, [wasteItems, searchTerm, materialFilter, priceFilter])
 
-  const handleContactSeller = (item: WasteItem) => {
+  const handleContactSeller = (item: Product) => {
     // In real app, this would open a contact modal or redirect to messaging
     alert(`Contacting ${item.owner.fullName} about ${item.name}`)
   }
@@ -212,7 +212,7 @@ export function AvailableWaste() {
                       <CardTitle className="text-lg">{item.name}</CardTitle>
                       <CardDescription className="flex items-center gap-1 mt-1">
                         <MapPin className="h-3 w-3" />
-                        {item.user.location || "Location not specified"}
+                        Location not specified
                       </CardDescription>
                     </div>
                     <Badge variant="outline">{item.materialType}</Badge>
@@ -241,7 +241,7 @@ export function AvailableWaste() {
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Listed by:</span>
-                      <span className="font-medium">{item.user.fullName}</span>
+                      <span className="font-medium">{item.owner.fullName}</span>
                     </div>
                   </div>
 

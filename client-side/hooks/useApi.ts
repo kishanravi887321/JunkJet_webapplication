@@ -281,6 +281,18 @@ export function useUpdateProduct() {
   }>((data) => api.updateProduct(data))
 }
 
+export function useGetAllProducts() {
+  return useApiCall<Product[], {
+    materialType?: string
+    limit?: number
+    page?: number
+  }>((params) => api.getAllProducts(params))
+}
+
+export function useGetUserProducts() {
+  return useApiCall<Product[], string>((email) => api.getUserProducts(email))
+}
+
 // Review Hooks
 export function useAddReview() {
   return useApiCall<Review, {
