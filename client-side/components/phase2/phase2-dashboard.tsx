@@ -5,6 +5,7 @@ import { AvailableWaste } from "./available-waste"
 import { InventoryManagement } from "./inventory-management"
 import { BuyerStats } from "./buyer-stats"
 import { AnalyticsDashboard } from "./analytics-dashboard"
+import { RealTimeAnalyticsDashboard } from "./real-time-analytics"
 import { OrganizationSetup } from "./organization-setup"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -78,7 +79,13 @@ export function Phase2Dashboard({ refreshKey }: Phase2DashboardProps) {
       </TabsContent>
 
       <TabsContent value="analytics" className="space-y-6">
-        <AnalyticsDashboard />
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h3 className="text-xl font-semibold">Analytics Dashboard</h3>
+            <p className="text-muted-foreground">Comprehensive insights into your waste management operations</p>
+          </div>
+        </div>
+        <RealTimeAnalyticsDashboard />
       </TabsContent>
 
       <TabsContent value="available-waste" className="space-y-6">

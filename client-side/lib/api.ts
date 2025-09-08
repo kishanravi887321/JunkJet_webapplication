@@ -505,6 +505,52 @@ class ApiClient {
     })
   }
 
+  // Phase 2 Analytics Methods
+  async getAreaWasteCollection(email: string): Promise<ApiResponse<Array<{
+    area: string
+    wasteCollected: number
+    revenue: number
+    transactions: number
+  }>>> {
+    return this.request<any>(`/api/analytics/area-waste-collection?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+    })
+  }
+
+  async getMonthlyTrends(email: string): Promise<ApiResponse<Array<{
+    month: string
+    collected: number
+    sold: number
+    revenue: number
+    profit: number
+  }>>> {
+    return this.request<any>(`/api/analytics/monthly-trends?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+    })
+  }
+
+  async getIndustryDistribution(email: string): Promise<ApiResponse<Array<{
+    name: string
+    percentage: number
+    value: number
+    color: string
+  }>>> {
+    return this.request<any>(`/api/analytics/industry-distribution?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+    })
+  }
+
+  async getTransactionFlow(email: string): Promise<ApiResponse<Array<{
+    month: string
+    buying: number
+    selling: number
+    netProfit: number
+  }>>> {
+    return this.request<any>(`/api/analytics/transaction-flow?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+    })
+  }
+
   async addWasteTransaction(data: {
     buyerEmail: string
     materialType: string
@@ -639,6 +685,10 @@ export const getWasteTrend = (email?: string) => api.getWasteTrend(email)
 export const getMaterialDistribution = (email?: string) => api.getMaterialDistribution(email)
 export const getBuyerPerformance = (email?: string) => api.getBuyerPerformance(email)
 export const getEarningsTrend = (email?: string) => api.getEarningsTrend(email)
+export const getAreaWasteCollection = (email: string) => api.getAreaWasteCollection(email)
+export const getMonthlyTrends = (email: string) => api.getMonthlyTrends(email)
+export const getIndustryDistribution = (email: string) => api.getIndustryDistribution(email)
+export const getTransactionFlow = (email: string) => api.getTransactionFlow(email)
 export const addWasteTransaction = (data: Parameters<typeof api.addWasteTransaction>[0]) => api.addWasteTransaction(data)
 export const createTransaction = (data: Parameters<typeof api.createTransaction>[0]) => api.createTransaction(data)
 export const getUserTransactions = (params: Parameters<typeof api.getUserTransactions>[0]) => api.getUserTransactions(params)

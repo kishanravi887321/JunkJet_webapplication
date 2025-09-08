@@ -449,6 +449,145 @@ const getEarningsTrend = asyncHandler(async (req, res) => {
     }
 });
 
+// Phase 2 Analytics - Area-wise waste collection data
+const getAreaWasteCollection = asyncHandler(async (req, res) => {
+    try {
+        const { email } = req.query;
+        
+        if (!email) {
+            throw new ApiError(400, "Email is required");
+        }
+
+        // Find the Phase 2 user
+        const user = await User.findOne({ email, isPhase2User: true });
+        if (!user) {
+            throw new ApiError(404, "Phase 2 user not found");
+        }
+
+        // Aggregate waste collection by area (this would need actual location data)
+        // For now, returning mock data structure that matches the frontend
+        const areaData = [
+            { area: "Downtown", wasteCollected: 2500, revenue: 185000, transactions: 45 },
+            { area: "Industrial Zone", wasteCollected: 3200, revenue: 240000, transactions: 62 },
+            { area: "Residential East", wasteCollected: 1800, revenue: 135000, transactions: 38 },
+            { area: "Commercial District", wasteCollected: 2800, revenue: 210000, transactions: 54 }
+        ];
+
+        return res.status(200).json(
+            new ApiResponse(200, areaData, "Area waste collection data retrieved successfully")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Failed to get area waste collection data");
+    }
+});
+
+// Phase 2 Analytics - Monthly trends
+const getMonthlyTrends = asyncHandler(async (req, res) => {
+    try {
+        const { email } = req.query;
+        
+        if (!email) {
+            throw new ApiError(400, "Email is required");
+        }
+
+        const user = await User.findOne({ email, isPhase2User: true });
+        if (!user) {
+            throw new ApiError(404, "Phase 2 user not found");
+        }
+
+        // Get transactions for the user as a buyer
+        const transactions = await WasteTransaction.find({ buyer: user._id })
+            .sort({ transactionDate: 1 });
+
+        // Group by month
+        const monthlyData = {};
+        transactions.forEach(transaction => {
+            const month = transaction.transactionDate.toLocaleDateString('en-US', { month: 'short' });
+            if (!monthlyData[month]) {
+                monthlyData[month] = {
+                    month,
+                    collected: 0,
+                    sold: 0,
+                    revenue: 0,
+                    profit: 0
+                };
+            }
+            monthlyData[month].collected += transaction.weight;
+            monthlyData[month].revenue += transaction.totalAmount;
+        });
+
+        const result = Object.values(monthlyData);
+
+        return res.status(200).json(
+            new ApiResponse(200, result, "Monthly trends retrieved successfully")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Failed to get monthly trends");
+    }
+});
+
+// Phase 2 Analytics - Industry distribution
+const getIndustryDistribution = asyncHandler(async (req, res) => {
+    try {
+        const { email } = req.query;
+        
+        if (!email) {
+            throw new ApiError(400, "Email is required");
+        }
+
+        const user = await User.findOne({ email, isPhase2User: true });
+        if (!user) {
+            throw new ApiError(404, "Phase 2 user not found");
+        }
+
+        // Aggregate by buyer organization (would need Phase3User data)
+        const industryData = [
+            { name: "Plastic Recycling Co.", percentage: 25, value: 4500, color: "#0088FE" },
+            { name: "Paper Mills Ltd.", percentage: 20, value: 3600, color: "#00C49F" },
+            { name: "Metal Processing Inc.", percentage: 18, value: 3240, color: "#FFBB28" },
+            { name: "Glass Industries", percentage: 15, value: 2700, color: "#FF8042" }
+        ];
+
+        return res.status(200).json(
+            new ApiResponse(200, industryData, "Industry distribution retrieved successfully")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Failed to get industry distribution");
+    }
+});
+
+// Phase 2 Analytics - Transaction money flow
+const getTransactionFlow = asyncHandler(async (req, res) => {
+    try {
+        const { email } = req.query;
+        
+        if (!email) {
+            throw new ApiError(400, "Email is required");
+        }
+
+        const user = await User.findOne({ email, isPhase2User: true });
+        if (!user) {
+            throw new ApiError(404, "Phase 2 user not found");
+        }
+
+        // Get buying transactions (Phase 2 user buying from Phase 1)
+        const buyingTransactions = await WasteTransaction.find({ buyer: user._id });
+        
+        // Mock selling data (Phase 2 to Phase 3) - would need Phase3 transaction model
+        const flowData = [
+            { month: "Jan", buying: 580000, selling: 885000, netProfit: 305000 },
+            { month: "Feb", buying: 620000, selling: 967500, netProfit: 347500 },
+            { month: "Mar", buying: 680000, selling: 1065000, netProfit: 385000 }
+        ];
+
+        return res.status(200).json(
+            new ApiResponse(200, flowData, "Transaction flow retrieved successfully")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Failed to get transaction flow");
+    }
+});
+
 export {
     addWasteTransaction,
     getAnalyticsSummary,
@@ -456,5 +595,9 @@ export {
     getMaterialDistribution,
     getBuyerPerformance,
     getEarningsTrend,
-    updateUserAnalytics
+    updateUserAnalytics,
+    getAreaWasteCollection,
+    getMonthlyTrends,
+    getIndustryDistribution,
+    getTransactionFlow
 };
