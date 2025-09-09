@@ -45,10 +45,27 @@ export function SimpleUserMenu() {
       {/* Avatar Button */}
       <Button 
         variant="ghost" 
-        className="relative h-10 w-10 rounded-full border-2 border-blue-500 bg-blue-100" 
+        className="relative h-10 w-10 rounded-full border-2 border-blue-500 p-0 overflow-hidden" 
         onClick={toggleMenu}
       >
-        <div className="h-8 w-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
+        {user.avatar ? (
+          // Show profile picture if available
+          <img 
+            src={user.avatar} 
+            alt={user.fullName}
+            className="h-full w-full rounded-full object-cover"
+            onError={(e) => {
+              // Fallback to initials if image fails to load
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        
+        {/* Fallback to initials */}
+        <div 
+          className={`h-full w-full rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold ${user.avatar ? 'hidden' : 'flex'}`}
+        >
           {user.fullName
             .split(" ")
             .map((n) => n[0])
