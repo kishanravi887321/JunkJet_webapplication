@@ -18,21 +18,21 @@ const router = Router();
 
 // Analytics routes for Phase 1 users
 router.route("/summary").get(verifyToken,getAnalyticsSummary);
-router.route("/waste-trend").get(getWasteTrend);
-router.route("/material-distribution").get(getMaterialDistribution);
-router.route("/buyer-performance").get(getBuyerPerformance);
-router.route("/earnings-trend").get(getEarningsTrend);
+router.route("/waste-trend").get(verifyToken,getWasteTrend);
+router.route("/material-distribution").get(verifyToken,getMaterialDistribution);
+router.route("/buyer-performance").get(verifyToken,getBuyerPerformance);
+router.route("/earnings-trend").get(verifyToken,getEarningsTrend);
 
 // Analytics routes for Phase 2 users
-router.route("/area-waste-collection").get(getAreaWasteCollection);
-router.route("/monthly-trends").get(getMonthlyTrends);
-router.route("/industry-distribution").get(getIndustryDistribution);
-router.route("/transaction-flow").get(getTransactionFlow);
+router.route("/area-waste-collection").get(verifyToken,getAreaWasteCollection);
+router.route("/monthly-trends").get(verifyToken,getMonthlyTrends);
+router.route("/industry-distribution").get(verifyToken,getIndustryDistribution);
+router.route("/transaction-flow").get(verifyToken,getTransactionFlow);
 
 // Transaction management
-router.route("/transaction").post(addWasteTransaction);
+router.route("/transaction").post(verifyToken,addWasteTransaction);
 
 // Test data generation (for development)
-router.route("/generate-test-data").post(generateTestData);
+router.route("/generate-test-data").post(verifyToken,generateTestData);
 
 export default router;
