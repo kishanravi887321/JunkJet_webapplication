@@ -8,7 +8,6 @@ import { AuthProvider } from "@/lib/auth"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { FloatingChatbotButton } from "@/components/chatbot-panel"
-import { AuthDebugger } from "@/components/auth-debugger"
 import { getRoutes } from "@/lib/routes"
 import { Suspense } from "react"
 import "./globals.css"
@@ -42,9 +41,6 @@ export default async function RootLayout({
               
               {/* Floating Chatbot */}
               <FloatingChatbotButton />
-              
-              {/* Temporary Auth Debugger */}
-              <AuthDebugger />
             </div>
           </AuthProvider>
         </ThemeProvider>
