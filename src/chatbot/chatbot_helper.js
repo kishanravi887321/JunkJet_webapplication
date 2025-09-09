@@ -394,55 +394,68 @@ function analyzeUserInput(input) {
     return analysis;
 }
 
-// Update user context based on analysis
-function updateUserContext(analysis, userId) {
+// Update user context based on analysis with Redis storage
+async function updateUserContext(analysis, userId, userSession) {
     if (analysis.userType) {
-        userContext.userType = analysis.userType;
+        userSession.userType = analysis.userType;
     }
     
-    userContext.currentIntent = analysis.intent;
+    userSession.currentIntent = analysis.intent;
     
     if (analysis.location) {
-        userContext.location = analysis.location;
+        userSession.location = analysis.location;
     }
     
     // Update material preferences
     if (analysis.materials.length > 0) {
         analysis.materials.forEach(material => {
-            userContext.preferences[material] = (userContext.preferences[material] || 0) + 1;
+            userSession.preferences[material] = (userSession.preferences[material] || 0) + 1;
         });
     }
     
-    userContext.lastInteraction = new Date();
+    // Save updated session to Redis
+    await sessionManager.saveUserSession(userId, userSession);
 }
 
-// Get conversation context summary
-function getConversationContext() {
+// Get conversation context summary with Redis history
+function getConversationContext(conversationHistory) {
     if (conversationHistory.length === 0) {
         return "This is the start of a new conversation.";
     }
     
     const recentCount = Math.min(conversationHistory.length, 6);
-    const recentMessages = conversationHistory.slice(-recentCount);
+    const intentCounts = {};
     
-    return `Conversation has ${conversationHistory.length} messages. Recent context focuses on: ${userContext.currentIntent}`;
+    conversationHistory.slice(-recentCount).forEach(msg => {
+        if (msg.role === 'user') {
+            const analysis = analyzeUserInput(msg.content);
+            intentCounts[analysis.intent] = (intentCounts[analysis.intent] || 0) + 1;
+        }
+    });
+    
+    const dominantIntent = Object.keys(intentCounts).reduce((a, b) => 
+        intentCounts[a] > intentCounts[b] ? a : b, 'general'
+    );
+    
+    return `Conversation has ${conversationHistory.length} messages. Recent context focuses on: ${dominantIntent}`;
 }
 
-// Get recent conversation history
-function getRecentHistory() {
+// Get recent conversation history from Redis data
+function getRecentHistory(conversationHistory) {
     if (conversationHistory.length === 0) {
         return "No previous conversation history.";
     }
     
-    const recent = conversationHistory.slice(-3).map((msg, index) => {
-        return `${index + 1}. ${msg.role}: "${msg.content.substring(0, 100)}${msg.content.length > 100 ? '...' : ''}"`;
+    const recent = conversationHistory.slice(0, 3).map((msg, index) => {
+        const timeAgo = Math.round((new Date() - new Date(msg.timestamp)) / (1000 * 60));
+        return `${index + 1}. ${msg.role} (${timeAgo}m ago): "${msg.content.substring(0, 100)}${msg.content.length > 100 ? '...' : ''}"`;
     }).join('\n');
     
     return recent;
 }
 
-// Process AI response for enhancements
-function processAIResponse(response, userInput) {
+// Process AI response for enhancements with session context
+async function processAIResponse(response, userInput, userId, userSession) {
     // Clean up the response
     let processedResponse = response.trim();
     
@@ -451,19 +464,32 @@ function processAIResponse(response, userInput) {
         return processedResponse.includes('TrueFlag1234') ? 'TrueFlag1234' : 'FalseFlag1234';
     }
     
-    // Add contextual enhancements
-    if (userContext.currentIntent === 'selling' && !processedResponse.includes('Phase 1')) {
+    // Add contextual enhancements based on session data
+    if (userSession.currentIntent === 'selling' && !processedResponse.includes('Phase 1')) {
         processedResponse += "\n\n💡 As a Phase 1 seller, you can list your materials and connect with nearby Phase 2 buyers!";
-    } else if (userContext.currentIntent === 'buying' && !processedResponse.includes('Phase 2')) {
+    } else if (userSession.currentIntent === 'buying' && !processedResponse.includes('Phase 2')) {
         processedResponse += "\n\n💡 As a Phase 2 buyer, you can find materials from Phase 1 sellers and Phase 3 organizations!";
+    }
+    
+    // Add session-based hints for long conversations
+    const sessionStats = await sessionManager.getSessionStats(userId);
+    if (sessionStats && sessionStats.messageCount > 8) {
+        processedResponse += "\n\n💬 We've been chatting for a while! Is there something specific I can help you accomplish today?";
     }
     
     return processedResponse;
 }
 
-// Generate fallback responses for errors
-function generateFallbackResponse(userInput) {
+// Generate fallback responses for errors with session awareness
+async function generateFallbackResponse(userInput, userId) {
     const analysis = analyzeUserInput(userInput);
+    let userSession = null;
+    
+    try {
+        userSession = await sessionManager.getUserSession(userId);
+    } catch (error) {
+        console.error("Error getting session for fallback:", error);
+    }
     
     const fallbackResponses = {
         selling: "I'd love to help you sell your waste materials! Can you tell me what type of materials you have? 📦",
@@ -474,7 +500,14 @@ function generateFallbackResponse(userInput) {
         general: "Hello! I'm your JunkJet assistant. I can help you buy, sell, or learn about our waste management platform. What can I do for you today? 🌱"
     };
     
-    return fallbackResponses[analysis.intent] || fallbackResponses.general;
+    let response = fallbackResponses[analysis.intent] || fallbackResponses.general;
+    
+    // Add session context if available
+    if (userSession && userSession.messageCount > 0) {
+        response += `\n\n🔄 I'm having a temporary connection issue, but I remember our conversation about ${userSession.currentIntent || 'your inquiry'}.`;
+    }
+    
+    return response;
 }
 
 // Clear conversation history (for memory management)
