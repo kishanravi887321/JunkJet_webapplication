@@ -111,7 +111,14 @@ const userLogin=asyncHandler( async (req,res) =>{
 
     //  generate the access and refresh token
     const accessToken=  user.generateAccessToken(user._id)
-    console.log(accessToken,"generateToken","login successful")
+    const refreshToken=  user.generateRefreshToken(user._id)
+    
+    console.log(accessToken,"generateAccessToken","login successful")
+    console.log(refreshToken,"generateRefreshToken","login successful")
+
+    // Save refresh token to database
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
 
     const userLoggedIn= await  User.findById(user._id).select("-password -refreshToken")
 
@@ -125,15 +132,107 @@ const userLogin=asyncHandler( async (req,res) =>{
 
            return res.status(200)
     .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json({    
         status: 200,
         message: "User logged in successfully!",
-        data: { userLoggedIn, accessToken }  // ✅ Include accessToken explicitly
+        data: { userLoggedIn, accessToken, refreshToken }  // ✅ Include both tokens
     });
 
     
     
 })
+
+// Refresh Access Token using Refresh Token
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    try {
+        const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+        if (!incomingRefreshToken) {
+            throw new ApiError(401, "Refresh token is required");
+        }
+
+        // Import JWT here to avoid import issues
+        const jwt = await import('jsonwebtoken');
+
+        // Verify the refresh token
+        const decodedToken = jwt.default.verify(
+            incomingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET || "ravikishan"
+        );
+
+        // Find the user by ID from token
+        const user = await User.findById(decodedToken?._id);
+
+        if (!user) {
+            throw new ApiError(401, "Invalid refresh token");
+        }
+
+        // Check if the refresh token matches the one stored in database
+        if (incomingRefreshToken !== user?.refreshToken) {
+            throw new ApiError(401, "Refresh token is expired or used");
+        }
+
+        // Generate new access and refresh tokens
+        const accessToken = user.generateAccessToken(user._id);
+        const newRefreshToken = user.generateRefreshToken(user._id);
+
+        // Update refresh token in database
+        user.refreshToken = newRefreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        const options = {
+            httpOnly: true,
+            // secure: true,
+            sameSite: "Lax"
+        };
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json({
+                status: 200,
+                message: "Access token refreshed successfully",
+                data: { accessToken, refreshToken: newRefreshToken }
+            });
+
+    } catch (error) {
+        throw new ApiError(401, error?.message || "Invalid refresh token");
+    }
+});
+
+// Logout User (Clear tokens)
+const logoutUser = asyncHandler(async (req, res) => {
+    // Clear the refresh token from database
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: {
+                refreshToken: 1 // This removes the field from document
+            }
+        },
+        {
+            new: true
+        }
+    );
+
+    const options = {
+        httpOnly: true,
+        // secure: true,
+        sameSite: "Lax"
+    };
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json({
+            status: 200,
+            message: "User logged out successfully",
+            data: {}
+        });
+});
 
 
 
@@ -339,4 +438,4 @@ const updateUserDetails = asyncHandler(async (req, res, next) => {
 
 
 
-export { registerUser,userLogin,updatePassword ,deleteAvatar,updateAvatar,updateUserDetails,deleteCoverImage,updateCoverImage};
+export { registerUser,userLogin,updatePassword ,deleteAvatar,updateAvatar,updateUserDetails,deleteCoverImage,updateCoverImage,refreshAccessToken,logoutUser};

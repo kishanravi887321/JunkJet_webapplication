@@ -1,7 +1,7 @@
 import { Router  } from "express";
 import { chatbot } from "../chatbot/index.js";
 
-import { registerUser,userLogin ,updatePassword, deleteAvatar, updateAvatar, updateUserDetails, deleteCoverImage, updateCoverImage} from "../controllers/user.controllers.js";
+import { registerUser,userLogin ,updatePassword, deleteAvatar, updateAvatar, updateUserDetails, deleteCoverImage, updateCoverImage, refreshAccessToken, logoutUser} from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyToken } from "../middlewares/verifyjwtToken.middlewares.js";
 
@@ -24,6 +24,8 @@ router.route("/register").post(
     ,registerUser)
 
 router.route("/login").post(userLogin)
+router.route("/refresh-token").post(refreshAccessToken)
+router.route("/logout").post(verifyToken, logoutUser)
 
 router.route("/changepassword").put(verifyToken,updatePassword)
 

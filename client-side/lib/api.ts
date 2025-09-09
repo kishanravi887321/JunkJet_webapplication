@@ -3,11 +3,18 @@
 // Base configuration
 // export const API_BASE_URL =  'http://localhost:8000' 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL  || 'http://localhost:8000'
-// 
+
 // Token management functions
 export const getToken = (): string | null => {
   if (typeof window !== 'undefined') {
     return localStorage.getItem("accessToken")
+  }
+  return null
+}
+
+export const getRefreshToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem("refreshToken")
   }
   return null
 }
@@ -18,9 +25,16 @@ export const setToken = (token: string): void => {
   }
 }
 
+export const setRefreshToken = (refreshToken: string): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem("refreshToken", refreshToken)
+  }
+}
+
 export const removeToken = (): void => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
     localStorage.removeItem("userData")
   }
 }
@@ -140,32 +154,55 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`
-    const token = getToken()
+    let token = getToken()
 
     console.log(`Making API request to: ${url}`)
     console.log('Request options:', options)
 
-    const config: RequestInit = {
-      ...options,
-      headers: {
-        ...options.headers,
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    }
-
-    // Don't set Content-Type for FormData
-    if (!(options.body instanceof FormData)) {
-      config.headers = {
-        ...config.headers,
-        'Content-Type': 'application/json',
+    const makeRequest = async (authToken?: string) => {
+      const config: RequestInit = {
+        ...options,
+        headers: {
+          ...options.headers,
+          ...(authToken && { Authorization: `Bearer ${authToken}` }),
+        },
       }
+
+      // Don't set Content-Type for FormData
+      if (!(options.body instanceof FormData)) {
+        config.headers = {
+          ...config.headers,
+          'Content-Type': 'application/json',
+        }
+      }
+
+      return await fetch(url, config)
     }
 
     try {
-      const response = await fetch(url, config)
+      let response = await makeRequest(token || undefined)
       
       console.log(`Response status: ${response.status}`)
       console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+      
+      // If token expired (401) and we have a refresh token, try to refresh
+      if (response.status === 401 && getRefreshToken()) {
+        console.log('Access token expired, attempting to refresh...')
+        
+        try {
+          const refreshResponse = await this.refreshAccessToken()
+          if (refreshResponse.data?.accessToken) {
+            // Retry original request with new token
+            console.log('Token refreshed successfully, retrying original request...')
+            response = await makeRequest(refreshResponse.data.accessToken)
+          }
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError)
+          // Clear invalid tokens and redirect to login
+          removeToken()
+          throw new Error('Session expired. Please login again.')
+        }
+      }
       
       // Handle text responses (like chatbot)
       if (response.headers.get('content-type')?.includes('text/plain')) {
@@ -189,9 +226,41 @@ class ApiClient {
     } catch (error) {
       console.error('API request failed:', error)
       console.error('URL:', url)
-      console.error('Config:', config)
       throw error
     }
+  }
+
+  // Refresh access token
+  private async refreshAccessToken(): Promise<ApiResponse<{ accessToken: string; refreshToken: string }>> {
+    const refreshToken = getRefreshToken()
+    
+    if (!refreshToken) {
+      throw new Error('No refresh token available')
+    }
+
+    const response = await fetch(`${this.baseURL}/api/users/refresh-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refreshToken }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to refresh token')
+    }
+
+    const data = await response.json()
+    
+    // Update stored tokens
+    if (data.data?.accessToken) {
+      setToken(data.data.accessToken)
+    }
+    if (data.data?.refreshToken) {
+      setRefreshToken(data.data.refreshToken)
+    }
+
+    return data
   }
 
   // User API Methods
@@ -225,15 +294,18 @@ class ApiClient {
   async loginUser(credentials: {
     email: string
     password: string
-  }): Promise<ApiResponse<{ userLoggedIn: User; accessToken: string }>> {
-    const response = await this.request<{ userLoggedIn: User; accessToken: string }>('/api/users/login', {
+  }): Promise<ApiResponse<{ userLoggedIn: User; accessToken: string; refreshToken: string }>> {
+    const response = await this.request<{ userLoggedIn: User; accessToken: string; refreshToken: string }>('/api/users/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     })
     
-    // Store token after successful login
+    // Store both tokens after successful login
     if (response.data?.accessToken) {
       setToken(response.data.accessToken)
+    }
+    if (response.data?.refreshToken) {
+      setRefreshToken(response.data.refreshToken)
     }
     
     return response
