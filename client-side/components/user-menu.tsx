@@ -18,9 +18,15 @@ export function UserMenu() {
   const { user, logout } = useAuth()
   const router = useRouter()
 
-  const handleLogout = () => {
-    logout()
-    router.push("/")
+  const handleLogout = async () => {
+    try {
+      await logout()
+      router.push("/")
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Still redirect even if logout fails
+      router.push("/")
+    }
   }
 
   if (!user) {
