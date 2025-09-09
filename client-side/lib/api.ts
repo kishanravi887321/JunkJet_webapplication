@@ -726,8 +726,25 @@ class ApiClient {
   }
 
   // Auth Methods
-  logout(): void {
-    removeToken()
+  async logout(): Promise<ApiResponse> {
+    try {
+      // Call backend logout endpoint to clear refresh token from database
+      const response = await this.request('/api/users/logout', {
+        method: 'POST',
+      })
+      
+      // Clear tokens from localStorage regardless of backend response
+      removeToken()
+      
+      return response
+    } catch (error) {
+      // Even if backend call fails, clear local tokens
+      removeToken()
+      return {
+        status: 200,
+        message: "Logged out locally"
+      }
+    }
   }
 }
 

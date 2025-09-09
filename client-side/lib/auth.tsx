@@ -19,7 +19,7 @@ interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
-  logout: () => void
+  logout: () => Promise<void>
   loading: boolean
   updateUser: (userData: Partial<User>) => void
 }
@@ -85,9 +85,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    api.logout()
+  const logout = async () => {
+    try {
+      await api.logout()
+      setUser(null)
+    } catch (error) {
+      // Even if API call fails, clear local state
+      setUser(null)
+      console.error('Logout error:', error)
+    }
   }
 
   const updateUser = (userData: Partial<User>) => {
