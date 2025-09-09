@@ -1,38 +1,203 @@
 import dotenv from "dotenv";
-dotenv.config({ path: "../.env" });
+import { redisClient } from "../db/redis.db.js";
+dotenv.config({ path: "../../.env" });
 
-// Enhanced conversation memory and context management
-let conversationHistory = [];
-let userContext = {
-  userType: null,
-  location: null,
-  preferences: {},
-  currentIntent: null,
-  lastInteraction: null
-};
+// Session configuration
+const SESSION_TIMEOUT = 5 * 60; // 5 minutes in seconds
+const MAX_CONVERSATION_HISTORY = 10; // Maximum messages to store per session
 
-///  Enhanced function for intelligent interaction with GEMINI_API
+// Enhanced conversation memory and context management using Redis
+class ChatbotSessionManager {
+    constructor() {
+        this.sessionTimeout = SESSION_TIMEOUT;
+        this.maxHistory = MAX_CONVERSATION_HISTORY;
+    }
+
+    // Generate unique session key for Redis
+    generateSessionKey(userId) {
+        return `chatbot:session:${userId}`;
+    }
+
+    // Generate conversation history key
+    generateHistoryKey(userId) {
+        return `chatbot:history:${userId}`;
+    }
+
+    // Get user session from Redis
+    async getUserSession(userId) {
+        try {
+            const sessionKey = this.generateSessionKey(userId);
+            const sessionData = await redisClient.get(sessionKey);
+            
+            if (sessionData) {
+                const session = JSON.parse(sessionData);
+                // Extend session timeout on access
+                await redisClient.setEx(sessionKey, this.sessionTimeout, sessionData);
+                return session;
+            }
+            
+            // Create new session if none exists
+            const newSession = {
+                userType: null,
+                location: null,
+                preferences: {},
+                currentIntent: null,
+                lastInteraction: new Date().toISOString(),
+                sessionStart: new Date().toISOString(),
+                messageCount: 0
+            };
+            
+            await this.saveUserSession(userId, newSession);
+            return newSession;
+        } catch (error) {
+            console.error("Error getting user session:", error);
+            return this.getDefaultSession();
+        }
+    }
+
+    // Save user session to Redis with TTL
+    async saveUserSession(userId, sessionData) {
+        try {
+            const sessionKey = this.generateSessionKey(userId);
+            sessionData.lastInteraction = new Date().toISOString();
+            await redisClient.setEx(sessionKey, this.sessionTimeout, JSON.stringify(sessionData));
+        } catch (error) {
+            console.error("Error saving user session:", error);
+        }
+    }
+
+    // Get conversation history from Redis
+    async getConversationHistory(userId) {
+        try {
+            const historyKey = this.generateHistoryKey(userId);
+            const history = await redisClient.lRange(historyKey, 0, -1);
+            return history.map(item => JSON.parse(item)).reverse(); // Most recent first
+        } catch (error) {
+            console.error("Error getting conversation history:", error);
+            return [];
+        }
+    }
+
+    // Add message to conversation history
+    async addToHistory(userId, message) {
+        try {
+            const historyKey = this.generateHistoryKey(userId);
+            const messageData = {
+                ...message,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Add to list
+            await redisClient.lPush(historyKey, JSON.stringify(messageData));
+            
+            // Trim to max length
+            await redisClient.lTrim(historyKey, 0, this.maxHistory - 1);
+            
+            // Set TTL for history (longer than session)
+            await redisClient.expire(historyKey, this.sessionTimeout * 2);
+            
+        } catch (error) {
+            console.error("Error adding to history:", error);
+        }
+    }
+
+    // Clear user session and history
+    async clearUserSession(userId) {
+        try {
+            const sessionKey = this.generateSessionKey(userId);
+            const historyKey = this.generateHistoryKey(userId);
+            
+            await redisClient.del(sessionKey);
+            await redisClient.del(historyKey);
+            
+            console.log(`Cleared session for user: ${userId}`);
+        } catch (error) {
+            console.error("Error clearing user session:", error);
+        }
+    }
+
+    // Check if session is expired
+    async isSessionExpired(userId) {
+        try {
+            const sessionKey = this.generateSessionKey(userId);
+            const ttl = await redisClient.ttl(sessionKey);
+            return ttl <= 0;
+        } catch (error) {
+            console.error("Error checking session expiry:", error);
+            return true;
+        }
+    }
+
+    // Get session statistics
+    async getSessionStats(userId) {
+        try {
+            const session = await this.getUserSession(userId);
+            const history = await this.getConversationHistory(userId);
+            const sessionKey = this.generateSessionKey(userId);
+            const remainingTTL = await redisClient.ttl(sessionKey);
+            
+            return {
+                sessionAge: new Date() - new Date(session.sessionStart),
+                messageCount: history.length,
+                remainingTime: remainingTTL,
+                lastActivity: session.lastInteraction,
+                preferences: session.preferences
+            };
+        } catch (error) {
+            console.error("Error getting session stats:", error);
+            return null;
+        }
+    }
+
+    // Default session structure
+    getDefaultSession() {
+        return {
+            userType: null,
+            location: null,
+            preferences: {},
+            currentIntent: null,
+            lastInteraction: new Date().toISOString(),
+            sessionStart: new Date().toISOString(),
+            messageCount: 0
+        };
+    }
+}
+
+// Initialize session manager
+const sessionManager = new ChatbotSessionManager();
+
+///  Enhanced function for intelligent interaction with GEMINI_API with Redis session management
 const getGeminiResponse = async (userInput, userId = null) => {
-    const API_KEY = process.env.GEMINI_API_KEY;
+    if (!userId) {
+        userId = `anonymous_${Date.now()}`; // Generate temp ID for anonymous users
+    }
 
-    console.log("User Input:", userInput, "API Key Available:", !!API_KEY);
+    const API_KEY = process.env.GEMINI_API_KEY;
+    console.log("User Input:", userInput, "User ID:", userId, "API Key Available:", !!API_KEY);
 
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-    // Enhanced context building with conversation history
-    const enhancedPrompt = buildAdvancedContext(userInput, userId);
-    
-    // Update conversation history
-    conversationHistory.push({
-      role: 'user',
-      content: userInput,
-      timestamp: new Date(),
-      userId: userId
-    });
-
-    console.log("Enhanced Prompt:", enhancedPrompt.substring(0, 200) + "...");
-
     try {
+        // Get user session and conversation history from Redis
+        const userSession = await sessionManager.getUserSession(userId);
+        const conversationHistory = await sessionManager.getConversationHistory(userId);
+        
+        // Enhanced context building with Redis-stored conversation history
+        const enhancedPrompt = await buildAdvancedContext(userInput, userId, userSession, conversationHistory);
+        
+        // Add user message to history
+        await sessionManager.addToHistory(userId, {
+            role: 'user',
+            content: userInput,
+            userId: userId
+        });
+
+        // Update session message count
+        userSession.messageCount = (userSession.messageCount || 0) + 1;
+        await sessionManager.saveUserSession(userId, userSession);
+
+        console.log("Enhanced Prompt:", enhancedPrompt.substring(0, 200) + "...");
+
         const requestBody = {
             contents: [
                 { parts: [{ text: enhancedPrompt }] }
@@ -79,13 +244,12 @@ const getGeminiResponse = async (userInput, userId = null) => {
         }
 
         // Process and enhance the AI response
-        const processedResponse = processAIResponse(aiResponse, userInput);
+        const processedResponse = await processAIResponse(aiResponse, userInput, userId, userSession);
         
-        // Update conversation history with AI response
-        conversationHistory.push({
+        // Add AI response to history
+        await sessionManager.addToHistory(userId, {
             role: 'assistant',
-            content: processedResponse,
-            timestamp: new Date()
+            content: processedResponse
         });
 
         console.log("AI Response:", processedResponse);
@@ -93,18 +257,18 @@ const getGeminiResponse = async (userInput, userId = null) => {
 
     } catch (error) {
         console.error("Error:", error.message);
-        return generateFallbackResponse(userInput);
+        return await generateFallbackResponse(userInput, userId);
     }
 };
 
-// Advanced context building function
-function buildAdvancedContext(userInput, userId) {
+// Advanced context building function with Redis session data
+async function buildAdvancedContext(userInput, userId, userSession, conversationHistory) {
     const baseContext = getEnhancedChatbotDescription();
-    const conversationContext = getConversationContext();
+    const conversationContext = getConversationContext(conversationHistory);
     const userAnalysis = analyzeUserInput(userInput);
     
     // Update user context based on analysis
-    updateUserContext(userAnalysis, userId);
+    await updateUserContext(userAnalysis, userId, userSession);
     
     const contextualPrompt = `
 ${baseContext}
@@ -113,26 +277,29 @@ ${baseContext}
 ${conversationContext}
 
 **CURRENT USER CONTEXT:**
-- User Type: ${userContext.userType || 'Unknown'}
-- Current Intent: ${userContext.currentIntent || 'General inquiry'}
-- Location Preference: ${userContext.location || 'Not specified'}
-- Material Interests: ${JSON.stringify(userContext.preferences)}
+- User Type: ${userSession.userType || 'Unknown'}
+- Current Intent: ${userSession.currentIntent || 'General inquiry'}
+- Location Preference: ${userSession.location || 'Not specified'}
+- Material Interests: ${JSON.stringify(userSession.preferences)}
+- Session Messages: ${userSession.messageCount || 0}
+- Session Duration: ${userSession.sessionStart ? Math.round((new Date() - new Date(userSession.sessionStart)) / (1000 * 60)) : 0} minutes
 
 **CONVERSATION HISTORY (Last 3 interactions):**
-${getRecentHistory()}
+${getRecentHistory(conversationHistory)}
 
 **CURRENT USER INPUT:**
 "${userInput}"
 
 **RESPONSE GUIDELINES:**
 1. Be conversational and helpful
-2. Remember previous context
+2. Remember previous context from this session
 3. Guide users through the JunkJet process
 4. Ask relevant follow-up questions
 5. Use appropriate emojis sparingly
 6. If user asks about finding buyers/sellers, determine location preference and respond with appropriate flag
 7. Provide specific, actionable advice based on their user type
 8. Keep responses concise but informative (max 150 words)
+9. Consider session duration - if it's a long session, occasionally ask if they need help with something new
 
 **IMPORTANT FLAGS:**
 - If user wants to find connections from their current location → respond with "FalseFlag1234"
