@@ -100,8 +100,8 @@ userSchema.methods.generateAccessToken = function () {
         
         const token = jwt.sign(
             { _id: this._id, email: this.email,userName:this.userName,fullName:this.fullName },
-            process.env.ACCESS_TOKEN_SECRET || "defaultSecret",
-            { expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "59m" }
+            process.env.ACCESS_TOKEN_SECRET ,
+            { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
         );
       
         return token;
@@ -112,6 +112,19 @@ userSchema.methods.generateAccessToken = function () {
 };
 
 userSchema.methods.generateRefreshToken=function (){
+    try {
+        
+        const token = jwt.sign(
+            { _id: this._id, email: this.email,userName:this.userName,fullName:this.fullName },
+            process.env.REFRESH_TOKEN_SECRET ,
+            { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+        );
+      
+        return token;
+    } catch (err) {
+        console.error("Error generating refresh token:", err.message);
+        throw new Error("Failed to generate refresh token");
+    }
 
 }
 
