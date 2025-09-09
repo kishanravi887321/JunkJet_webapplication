@@ -510,23 +510,86 @@ async function generateFallbackResponse(userInput, userId) {
     return response;
 }
 
-// Clear conversation history (for memory management)
-function clearConversationHistory() {
-    conversationHistory = [];
-    userContext = {
-        userType: null,
-        location: null,
-        preferences: {},
-        currentIntent: null,
-        lastInteraction: null
-    };
+// Enhanced session management functions
+
+// Clear user session and conversation history
+async function clearUserSession(userId) {
+    try {
+        await sessionManager.clearUserSession(userId);
+        return { success: true, message: `Session cleared for user ${userId}` };
+    } catch (error) {
+        console.error("Error clearing user session:", error);
+        return { success: false, message: "Failed to clear session" };
+    }
 }
 
-// Export enhanced functions
+// Get current user session data (for debugging/monitoring)
+async function getCurrentUserSession(userId) {
+    try {
+        const session = await sessionManager.getUserSession(userId);
+        const stats = await sessionManager.getSessionStats(userId);
+        return {
+            session,
+            stats,
+            isExpired: await sessionManager.isSessionExpired(userId)
+        };
+    } catch (error) {
+        console.error("Error getting current user session:", error);
+        return null;
+    }
+}
+
+// Auto-cleanup expired sessions (can be called periodically)
+async function cleanupExpiredSessions() {
+    try {
+        // This would require scanning Redis keys - implement as needed
+        // For now, Redis TTL handles automatic cleanup
+        console.log("Session cleanup relies on Redis TTL auto-expiry");
+        return { success: true, message: "Cleanup handled by Redis TTL" };
+    } catch (error) {
+        console.error("Error during session cleanup:", error);
+        return { success: false, message: "Cleanup failed" };
+    }
+}
+
+// Get session statistics for monitoring
+async function getSessionStatistics(userId) {
+    try {
+        return await sessionManager.getSessionStats(userId);
+    } catch (error) {
+        console.error("Error getting session statistics:", error);
+        return null;
+    }
+}
+
+// Extend session timeout (if user is actively engaging)
+async function extendSession(userId, additionalMinutes = 5) {
+    try {
+        const sessionKey = sessionManager.generateSessionKey(userId);
+        const currentTTL = await redisClient.ttl(sessionKey);
+        
+        if (currentTTL > 0) {
+            const newTTL = currentTTL + (additionalMinutes * 60);
+            await redisClient.expire(sessionKey, newTTL);
+            return { success: true, newTTL: Math.round(newTTL / 60) };
+        }
+        
+        return { success: false, message: "Session not found or already expired" };
+    } catch (error) {
+        console.error("Error extending session:", error);
+        return { success: false, message: "Failed to extend session" };
+    }
+}
+
+// Export enhanced functions with Redis session management
 export { 
     getGeminiResponse, 
-    clearConversationHistory, 
-    userContext as getCurrentUserContext 
+    clearUserSession,
+    getCurrentUserSession,
+    cleanupExpiredSessions,
+    getSessionStatistics,
+    extendSession,
+    sessionManager // Export for direct access if needed
 };
 
 

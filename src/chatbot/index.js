@@ -2,14 +2,14 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../../.env" });
 
 import readline from "readline-sync";
-import { getGeminiResponse } from "./chatbot_helper.js";
+import { getGeminiResponse, getCurrentUserSession, extendSession } from "./chatbot_helper.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import { Phase1User } from "../models/phase1user.models.js";
 import { Phase2User } from "../models/phase2user.models.js";
 import { User } from "../models/user.models.js";
 
-// Chatbot handler function
+// Chatbot handler function with enhanced session management
 const chatbot = asyncHandler(async (req, res) => {
   try {
     // Get the user input from the request body
@@ -34,13 +34,27 @@ const chatbot = asyncHandler(async (req, res) => {
 
     // Check if user is logged in and get user context
     const user = await User.findOne({ email: "kishanravi887321@gmail.com" });
-    const userId = user ? user._id.toString() : null;
+    const userId = user ? user._id.toString() : `anonymous_${req.ip}_${Date.now()}`;
     
-    // Get the Gemini response with user context
+    // Log session activity for monitoring
+    console.log(`🔄 Processing message for user: ${userId}`);
+    
+    // Check current session status
+    const sessionInfo = await getCurrentUserSession(userId);
+    if (sessionInfo) {
+      console.log(`📊 Session stats: ${sessionInfo.stats?.messageCount || 0} messages, ${sessionInfo.stats?.remainingTime || 0}min remaining`);
+    }
+    
+    // Get the Gemini response with Redis-based session context
     const response = await getGeminiResponse(userInput, userId);
 
     if (!response) {
       throw new ApiError(404, "Something went wrong while processing your request.");
+    }
+
+    // Extend session for active users (if they've been chatting for a while)
+    if (sessionInfo?.stats?.messageCount > 5) {
+      await extendSession(userId, 2); // Add 2 more minutes for active users
     }
 
     // If response is not "TrueFlag" or "FalseFlag", send it back directly
@@ -48,7 +62,12 @@ const chatbot = asyncHandler(async (req, res) => {
       return res.status(202).json({
         success: true,
         message: response,
-        data: response
+        data: response,
+        sessionInfo: {
+          userId: userId.startsWith('anonymous') ? 'anonymous' : userId,
+          messageCount: sessionInfo?.stats?.messageCount || 0,
+          remainingTime: sessionInfo?.stats?.remainingTime || 0
+        }
       });
     }
 
@@ -141,4 +160,105 @@ const chatbot = asyncHandler(async (req, res) => {
   }
 });
 
-export { chatbot };
+// Session management endpoints
+
+// Get session information for a user
+const getSessionInfo = asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+      throw new ApiError(400, "User ID is required");
+    }
+    
+    const sessionInfo = await getCurrentUserSession(userId);
+    
+    if (!sessionInfo) {
+      return res.status(404).json({
+        success: false,
+        message: "Session not found",
+        data: null
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: "Session information retrieved successfully",
+      data: sessionInfo
+    });
+    
+  } catch (error) {
+    console.error("Error getting session info:", error);
+    if (error instanceof ApiError) {
+      return res.status(error.statuscode).json({ message: error.message });
+    }
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+});
+
+// Clear session for a user
+const clearSession = asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+      throw new ApiError(400, "User ID is required");
+    }
+    
+    const { clearUserSession } = await import("./chatbot_helper.js");
+    const result = await clearUserSession(userId);
+    
+    return res.status(200).json({
+      success: result.success,
+      message: result.message,
+      data: { userId }
+    });
+    
+  } catch (error) {
+    console.error("Error clearing session:", error);
+    if (error instanceof ApiError) {
+      return res.status(error.statuscode).json({ message: error.message });
+    }
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+});
+
+// Get analytics for all sessions
+const getSessionAnalytics = asyncHandler(async (req, res) => {
+  try {
+    const { sessionMonitor } = await import("./session_monitor.js");
+    const analytics = await sessionMonitor.getSessionAnalytics();
+    
+    if (!analytics) {
+      return res.status(404).json({
+        success: false,
+        message: "Unable to retrieve analytics",
+        data: null
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: "Session analytics retrieved successfully",
+      data: analytics
+    });
+    
+  } catch (error) {
+    console.error("Error getting session analytics:", error);
+    if (error instanceof ApiError) {
+      return res.status(error.statuscode).json({ message: error.message });
+    }
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+});
+
+export { chatbot, getSessionInfo, clearSession, getSessionAnalytics };
