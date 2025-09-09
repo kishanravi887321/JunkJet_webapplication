@@ -23,7 +23,7 @@ import {
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import type { Route } from "@/lib/routes"
-import { UserMenu } from "@/components/user-menu"
+import { SimpleUserMenu } from "@/components/simple-user-menu"
 
 const iconMap = {
   Home,
@@ -103,7 +103,7 @@ export function Navbar({ routes }: NavbarProps) {
             </Button>
           )}
 
-          <UserMenu />
+          <SimpleUserMenu />
         </div>
 
         {/* Mobile Menu */}
@@ -163,7 +163,7 @@ export function Navbar({ routes }: NavbarProps) {
                   )}
 
                   <div className="w-full">
-                    <UserMenu />
+                    <SimpleUserMenu />
                   </div>
                 </div>
               </div>
