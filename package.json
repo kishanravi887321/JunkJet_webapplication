@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-     "start": "node -r dotenv/config src/index.js"
+    "start": "node -r dotenv/config src/index.js"
   },
   "author": "Ravikishan",
   "license": "ISC",
@@ -29,6 +29,7 @@
     "path": "^0.12.7",
     "react": "^19.0.0",
     "readline-sync": "^1.4.10",
+    "redis": "^5.8.2",
     "uuid": "^11.0.5",
     "validator": "^13.12.0",
     "yup": "^1.6.1"
