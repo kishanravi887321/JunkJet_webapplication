@@ -1,4 +1,5 @@
 import { Router } from "express";
+import  {verifyToken} from "../middlewares/verifyjwtToken.middlewares.js"
 import {
     addWasteTransaction,
     getAnalyticsSummary,
@@ -16,7 +17,7 @@ import { generateTestData } from "../controllers/test.controllers.js";
 const router = Router();
 
 // Analytics routes for Phase 1 users
-router.route("/summary").get(getAnalyticsSummary);
+router.route("/summary").get(verifyToken,getAnalyticsSummary);
 router.route("/waste-trend").get(getWasteTrend);
 router.route("/material-distribution").get(getMaterialDistribution);
 router.route("/buyer-performance").get(getBuyerPerformance);

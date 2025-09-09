@@ -33,7 +33,7 @@ const chatbot = asyncHandler(async (req, res) => {
     }
 
     // Check if user is logged in and get user context
-    const user = await User.findOne({ email: "kishanravi887321@gmail.com" });
+    const user = await User.findOne({ email: req.user.email});
     const userId = user ? user._id.toString() : `anonymous_${req.ip}_${Date.now()}`;
     
     // Log session activity for monitoring
