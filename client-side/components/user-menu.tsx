@@ -54,7 +54,10 @@ export function UserMenu() {
             onError={(e) => {
               // Fallback to initials if image fails to load
               e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling.style.display = 'flex';
+              const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+              if (nextElement) {
+                nextElement.style.display = 'flex';
+              }
             }}
           />
         ) : null}
