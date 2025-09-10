@@ -58,94 +58,17 @@ const chatbot = asyncHandler(async (req, res) => {
       await extendSession(userId, 2); // Add 2 more minutes for active users
     }
 
-    // If response is not "TrueFlag" or "FalseFlag", send it back directly
-    if (response.trim() !== "TrueFlag1234" && response.trim() !== "FalseFlag1234") {
-      return res.status(202).json({
-        success: true,
-        message: response,
-        data: response,
-        sessionInfo: {
-          userId: userId.startsWith('anonymous') ? 'anonymous' : userId,
-          messageCount: sessionInfo?.stats?.messageCount || 0,
-          remainingTime: sessionInfo?.stats?.remainingTime || 0
-        }
-      });
-    }
-
-    // Check if user is logged in
-    if (!user) {
-      throw new ApiError(404, "Login required!");
-    }
-
-    let userDetails = "";
-    let users;
-    
-   console.log('u hitted the cahtbot route')
-      
-    if (response.trim() ==="TrueFlag1234") { // For Phase1User
-      // Find the Phase1User associated with the logged-in user
-      const phase1User = await Phase1User.findOne({ user: user._id });
-
-      if (!phase1User) {
-        throw new ApiError(404, "No Phase1User data found for the logged-in user.");
+    // Send the response back directly
+    return res.status(202).json({
+      success: true,
+      message: response,
+      data: response,
+      sessionInfo: {
+        userId: userId.startsWith('anonymous') ? 'anonymous' : userId,
+        messageCount: sessionInfo?.stats?.messageCount || 0,
+        remainingTime: sessionInfo?.stats?.remainingTime || 0
       }
-
-      // Extract the coordinates from Phase1User
-      const coordinates = phase1User.address?.coordinates?.coordinates; // GeoJSON format: [longitude, latitude]
-
-      console.log(coordinates);
-
-      if (!coordinates || coordinates.length !== 2) {
-        throw new ApiError(400, "Invalid or missing coordinates for Phase1User.");
-      }
-
-      // Fetch nearby Phase2Users based on the coordinates
-      users = await Phase2User.find({
-        "location.coordinates": {
-          $near: {
-            $geometry: {
-              type: "Point",
-              coordinates: coordinates, // [longitude, latitude]
-            },
-            $maxDistance: 9000, // Optional: Maximum distance in meters (e.g., 9 km)
-          },
-        },
-      }).select(
-        "location orgEmail orgName orgNumber locationUrl materialType"
-      );
-    }
-
-    // console.log(users, "Nearby Users");
-
-    // If users are found, format the details
-    if (users && users.length > 0) {
-      users.forEach((user) => {
-        userDetails += `
-          Organization Name: ${user.orgName}
-          Organization Email: ${user.orgEmail}
-          Organization Number: ${user.orgNumber}
-          Location: ${user.location.city}, ${user.location.state}, ${user.location.country}, Pincode: ${user.location.pincode}
-          Landmark: ${user.location.landmark}
-          Location URL: ${user.locationUrl}
-          Material Type: ${user.materialType}
-          -----------------------------------
-        `;
-      });
-
-      // console.log(userDetails.trim());
-      
-      return res.status(202).json({
-        success: true,
-        message: "Users found successfully",
-        data: userDetails.trim()
-      });
-    } else {
-      return res.status(404).json({
-        success: false,
-        message: "No users found for the given coordinates.",
-        data: null
-      });
-    }
+    });
   } catch (error) {
     // Handle custom errors
     if (error instanceof ApiError) {
