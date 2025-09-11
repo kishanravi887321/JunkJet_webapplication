@@ -1,0 +1,17 @@
+# Render deployment configuration for Next.js frontend only
+services:
+  - type: web
+    name: junkjet-frontend
+    env: node
+    region: ohio
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://your-backend-url.onrender.com
+    
+    # Auto-deploy when you push to main
+    autoDeploy: true

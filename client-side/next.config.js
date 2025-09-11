@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable App Router
+  // Enable App Router and server components
   experimental: {
     appDir: true,
+    serverComponentsExternalPackages: [],
   },
   
   // Image optimization
@@ -21,11 +22,6 @@ const nextConfig = {
   
   // Output configuration for deployment
   output: 'standalone',
-  
-  // Disable static optimization for pages that need server-side functionality
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
   
   // Webpack configuration
   webpack: (config, { dev, isServer }) => {

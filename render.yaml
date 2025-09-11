@@ -1,28 +1,15 @@
 services:
-  # Frontend (Next.js)
+  # Frontend (Next.js) - Deploy from client-side folder
   - type: web
     name: junkjet-frontend
     env: node
+    region: ohio
     buildCommand: cd client-side && npm install && npm run build
     startCommand: cd client-side && npm start
+    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        fromService:
-          type: web
-          name: junkjet-backend
-          property: host
-        template: https://${JUNKJET_BACKEND_HOST}
-    
-  # Backend (Node.js/Express)
-  - type: web
-    name: junkjet-backend
-    env: node
-    buildCommand: npm install
-    startCommand: npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 8000
+        value: http://localhost:8000
+    autoDeploy: true
