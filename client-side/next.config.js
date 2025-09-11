@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable App Router and server components
+  // Experimental features for Next.js 14+
   experimental: {
-    appDir: true,
     serverComponentsExternalPackages: [],
   },
   
