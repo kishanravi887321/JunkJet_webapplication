@@ -17,7 +17,7 @@ const verifyToken=(req,res,next)=>{
         needsAuth: true
     });
 
-    jwt.verify(token,process.env.ACCESS_TOKEN_SECRET||"ravikishan",async (err,user)=>{
+    jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,async (err,user)=>{
         if(err) {
             // console.log("Token verification error:", err.message);
             
@@ -51,8 +51,8 @@ const optionalAuth = (req, res, next) => {
         next();
         return;
     }
-    
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || "ravikishan", (err, user) => {
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) {
             console.log('Optional auth - invalid token, continuing as anonymous:', err.message);
             req.user = null;
