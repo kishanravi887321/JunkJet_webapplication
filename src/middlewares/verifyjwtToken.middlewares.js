@@ -13,7 +13,7 @@ const verifyToken=(req,res,next)=>{
     
     if(!token) return res.status(202).json({
         status: 202,
-        message: "Access denied - No token provided",
+        message: "Access denied - your session has expired, please log in again",
         needsAuth: true
     });
 
