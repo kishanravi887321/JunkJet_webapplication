@@ -43,24 +43,24 @@ const verifyToken=(req,res,next)=>{
 }
 
 // Optional authentication - doesn't block if no token
-const optionalAuth = (req, res, next) => {
-    const token = req.header('Authorization')?.split(' ')[1];
+// const optionalAuth = (req, res, next) => {
+//     const token = req.header('Authorization')?.split(' ')[1];
     
-    if (!token) {
-        req.user = null;
-        next();
-        return;
-    }
+//     if (!token) {
+//         req.user = null;
+//         next();
+//         return;
+//     }
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) {
-            console.log('Optional auth - invalid token, continuing as anonymous:', err.message);
-            req.user = null;
-        } else {
-            req.user = user;
-        }
-        next();
-    });
-};
+//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+//         if (err) {
+//             console.log('Optional auth - invalid token, continuing as anonymous:', err.message);
+//             req.user = null;
+//         } else {
+//             req.user = user;
+//         }
+//         next();
+//     });
+// };
 
 export {verifyToken, optionalAuth}
