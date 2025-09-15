@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, MapPin, Phone, Home } from "lucide-react"
+import { Loader2, MapPin, Phone, Home, ExternalLink } from "lucide-react"
 import { useRegisterPhase1User } from "@/hooks/useApi"
 
 interface AddressData {
@@ -21,6 +21,7 @@ interface AddressData {
   latitude: number
   longitude: number
   email: string
+  locationUrl: string
 }
 
 interface AddressRegistrationProps {
@@ -41,9 +42,27 @@ export function AddressRegistration({ onSuccess, isUpdate = false }: AddressRegi
     latitude: 0,
     longitude: 0,
     email: "", // will be set from localStorage
+    locationUrl: "",
   })
   const [gettingLocation, setGettingLocation] = useState(false)
   const [error, setError] = useState("")
+
+  // Generate Google Maps URL from coordinates
+  const generateMapUrl = (lat: number, lng: number): string => {
+    if (!lat || !lng || lat === 0 || lng === 0) return ""
+    return `https://www.google.com/maps?q=${lat},${lng}`
+  }
+
+  // Update location URL whenever coordinates change
+  useEffect(() => {
+    const newUrl = generateMapUrl(formData.latitude, formData.longitude)
+    if (newUrl !== formData.locationUrl) {
+      setFormData(prev => ({
+        ...prev,
+        locationUrl: newUrl
+      }))
+    }
+  }, [formData.latitude, formData.longitude])
 
   // ✅ Load userData from localStorage and set email
   useEffect(() => {
@@ -296,6 +315,40 @@ export function AddressRegistration({ onSuccess, isUpdate = false }: AddressRegi
                   }
                   required
                 />
+              </div>
+            </div>
+
+            {/* Location URL */}
+            <div className="space-y-2">
+              <Label htmlFor="locationUrl">Location URL *</Label>
+              <div className="relative">
+               
+                <Input
+                  id="locationUrl"
+                  name="locationUrl"
+                  type="url"
+                  placeholder="Google Maps or location URL"
+                  value={formData.locationUrl}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationUrl: e.target.value,
+                    }))
+                  }
+                  className="pl-10 pr-12"
+                  required
+                />
+                {formData.locationUrl && formData.locationUrl.includes('google.com/maps') && (
+                  <a 
+                    href={formData.locationUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="absolute right-3 top-3 text-primary hover:text-primary/80"
+                    title="Open in Google Maps"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -60,6 +60,23 @@ export function OrganizationSetup({ onSuccess, isUpdate = false }: OrganizationS
   })
   const [error, setError] = useState("")
   const [gettingLocation, setGettingLocation] = useState(false)
+
+  // Generate Google Maps URL from coordinates
+  const generateMapUrl = (lat: number, lng: number): string => {
+    if (!lat || !lng || lat === 0 || lng === 0) return ""
+    return `https://www.google.com/maps?q=${lat},${lng}`
+  }
+
+  // Update location URL whenever coordinates change
+  useEffect(() => {
+    const newUrl = generateMapUrl(formData.location.latitude, formData.location.longitude)
+    if (newUrl && newUrl !== formData.locationUrl) {
+      setFormData(prev => ({
+        ...prev,
+        locationUrl: newUrl
+      }))
+    }
+  }, [formData.location.latitude, formData.location.longitude])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -310,23 +327,6 @@ export function OrganizationSetup({ onSuccess, isUpdate = false }: OrganizationS
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="locationUrl">Location URL *</Label>
-              <div className="relative">
-                <ExternalLink className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="locationUrl"
-                  name="locationUrl"
-                  type="url"
-                  placeholder="Google Maps or location URL"
-                  value={formData.locationUrl}
-                  onChange={handleInputChange}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>Location Coordinates</Label>
@@ -378,6 +378,34 @@ export function OrganizationSetup({ onSuccess, isUpdate = false }: OrganizationS
                     onChange={handleInputChange}
                     required
                   />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="locationUrl">Location URL *</Label>
+                <div className="relative">
+                  <ExternalLink className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="locationUrl"
+                    name="locationUrl"
+                    type="url"
+                    placeholder="Google Maps or location URL"
+                    value={formData.locationUrl}
+                    onChange={handleInputChange}
+                    className="pl-10 pr-12"
+                    required
+                  />
+                  {formData.locationUrl && formData.locationUrl.includes('google.com/maps') && (
+                    <a 
+                      href={formData.locationUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="absolute right-3 top-3 text-primary hover:text-primary/80"
+                      title="Open in Google Maps"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
