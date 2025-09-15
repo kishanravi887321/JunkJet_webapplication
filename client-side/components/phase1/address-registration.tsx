@@ -322,7 +322,6 @@ export function AddressRegistration({ onSuccess, isUpdate = false }: AddressRegi
             <div className="space-y-2">
               <Label htmlFor="locationUrl">Location URL *</Label>
               <div className="relative">
-               
                 <Input
                   id="locationUrl"
                   name="locationUrl"
@@ -335,7 +334,7 @@ export function AddressRegistration({ onSuccess, isUpdate = false }: AddressRegi
                       locationUrl: e.target.value,
                     }))
                   }
-                  className="pl-10 pr-12"
+                  className="pr-12"
                   required
                 />
                 {formData.locationUrl && formData.locationUrl.includes('google.com/maps') && (

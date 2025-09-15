@@ -384,7 +384,6 @@ export function OrganizationSetup({ onSuccess, isUpdate = false }: OrganizationS
               <div className="space-y-2">
                 <Label htmlFor="locationUrl">Location URL *</Label>
                 <div className="relative">
-                  <ExternalLink className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="locationUrl"
                     name="locationUrl"
@@ -392,7 +391,7 @@ export function OrganizationSetup({ onSuccess, isUpdate = false }: OrganizationS
                     placeholder="Google Maps or location URL"
                     value={formData.locationUrl}
                     onChange={handleInputChange}
-                    className="pl-10 pr-12"
+                    className="pr-12"
                     required
                   />
                   {formData.locationUrl && formData.locationUrl.includes('google.com/maps') && (
