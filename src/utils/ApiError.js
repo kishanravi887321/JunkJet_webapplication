@@ -1,7 +1,7 @@
 class ApiError extends Error {
-    constructor(statuscode, message) {
+    constructor(statusCode, message) {
         super(message);
-        this.statuscode = statuscode;
+        this.statusCode = statusCode; // Fixed property name to match error handler
         this.isOperational = true; // Flag to identify expected errors
         Error.captureStackTrace(this, this.constructor);
     }

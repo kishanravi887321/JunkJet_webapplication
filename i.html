@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body style="background-color:#e6f7ff;">
+  <div id="plot" style="width:100%;height:100vh;"></div>
+
+  <script>
+    // Example ARGO-like dataset
+    const data = [
+      {
+        x: [34.5, 34.7, 35.0],   // Salinity
+        y: [0, 500, 1000],       // Depth
+        mode: "lines+markers",
+        name: "Float 2903304",
+        line: {color: "blue", width: 3},
+        marker: {size: 8}
+      },
+      {
+        x: [34.6, 34.9, 35.1],
+        y: [0, 500, 1000],
+        mode: "lines+markers",
+        name: "Float 2901205",
+        line: {color: "red", width: 3},
+        marker: {size: 8}
+      }
+    ];
+
+    const layout = {
+      title: {
+        text: "Salinity Profiles near Equator (March 2023)",
+        font: {size: 22, color: "#004466"}
+      },
+      xaxis: {
+        title: "Salinity (PSU)",
+        gridcolor: "#b3e0ff"
+      },
+      yaxis: {
+        title: "Depth (m)",
+        autorange: "reversed",   // ocean depth increases downward
+        gridcolor: "#b3e0ff"
+      },
+      paper_bgcolor: "#e6f7ff",  // background like water
+      plot_bgcolor: "#cceeff",
+      legend: {
+        bgcolor: "#ffffff",
+        bordercolor: "#66c2ff",
+        borderwidth: 1
+      }
+    };
+
+    Plotly.newPlot("plot", data, layout);
+  </script>
+</body>
+</html>

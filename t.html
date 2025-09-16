@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OceanAI - ARGO Data Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.1/plotly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1e40af;
+            --ocean-teal: #0891b2;
+            --deep-blue: #1e3a8a;
+            --light-blue: #3b82f6;
+            --wave-color: rgba(59, 130, 246, 0.1);
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        [data-theme="dark"] {
+            --primary-blue: #3b82f6;
+            --ocean-teal: #06b6d4;
+            --text-dark: #f1f5f9;
+            --text-light: #94a3b8;
+            --bg-light: #0f172a;
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --glass-bg: rgba(15, 23, 42, 0.3);
+            --glass-border: rgba(59, 130, 246, 0.3);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Animated Wave Background */
+        .wave-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e40af 0%, #0891b2 50%, #06b6d4 100%);
+            z-index: -2;
+        }
+
+        .wave-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path d="M0,300 C300,200 400,400 500,300 C600,200 700,400 1000,300 L1000,1000 L0,1000 Z" fill="rgba(255,255,255,0.1)"/></svg>') repeat-x;
+            animation: wave 20s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--ocean-teal);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--ocean-teal);
+            background: var(--glass-bg);
+        }
+
+        .theme-toggle {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--ocean-teal);
+            color: white;
+        }
+
+        /* Main Layout */
+        .main-container {
+            margin-top: 80px;
+            height: calc(100vh - 80px);
+            display: flex;
+            position: relative;
+        }
+
+        /* Visualization Panel */
+        .viz-panel {
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .viz-panel.chatbot-open {
+            width: 70%;
+        }
+
+        .viz-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .viz-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--ocean-teal);
+        }
+
+        .map-container, .plot-container {
+            height: calc(100% - 80px);
+            border-radius: 1rem;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Chatbot */
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--ocean-teal), var(--primary-blue));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(30, 64, 175, 0.4);
+        }
+
+        .chatbot-panel {
+            position: fixed;
+            top: 80px;
+            right: -30%;
+            width: 30%;
+            height: calc(100vh - 80px);
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--glass-border);
+            transition: right 0.3s ease;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chatbot-panel.open {
+            right: 0;
+        }
+
+        .chatbot-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-title {
+            font-weight: bold;
+            color: var(--ocean-teal);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, var(--ocean-teal), var(--primary-blue));
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.bot {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-dark);
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            background: var(--glass-bg);
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--ocean-teal), var(--primary-blue));
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* About Page */
+        .page {
+            display: none;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 3rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--ocean-teal);
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .info-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--ocean-teal);
+        }
+
+        .info-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .info-description {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--ocean-teal), var(--primary-blue));
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Login/Signup Forms */
+        .auth-container {
+            max-width: 400px;
+            margin: 3rem auto;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--ocean-teal);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            background: var(--glass-bg);
+            color: var(--text-dark);
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--ocean-teal);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, var(--ocean-teal), var(--primary-blue));
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .auth-switch {
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .auth-switch a {
+            color: var(--ocean-teal);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            .viz-panel {
+                width: 100% !important;
+            }
+
+            .chatbot-panel {
+                width: 100%;
+                right: -100%;
+                top: 50%;
+                height: 50vh;
+            }
+
+            .chatbot-panel.open {
+                right: 0;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--glass-border);
+            border-radius: 50%;
+            border-top-color: var(--ocean-teal);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .status-indicator.connected {
+            border-color: #10b981;
+            color: #10b981;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="wave-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo" onclick="showPage('home')">🌊 OceanAI</a>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('home')">Home</a></li>
+                <li><a href="#" onclick="showPage('about')">About ARGO & NetCDF</a></li>
+                <li><a href="#" onclick="showPage('viz')">Visualizations</a></li>
+                <li><a href="#" onclick="showPage('auth')">Login / Signup</a></li>
+            </ul>
+            <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Home Page -->
+        <div id="home-page" class="page active">
+            <div class="viz-panel" id="vizPanel">
+                <div class="viz-header">
+                    <h2 class="viz-title">Global ARGO Float Network</h2>
+                    <div class="status-indicator connected" id="statusIndicator">
+                        ● Connected to ARGO Database
+                    </div>
+                </div>
+                <div id="mapContainer" class="map-container"></div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about-page" class="page">
+            <div class="hero-section">
+                <h1 class="hero-title">Understanding Ocean Data</h1>
+                <p class="hero-subtitle">Discover how ARGO floats and NetCDF technology revolutionize ocean science through AI-powered data analysis and visualization.</p>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">🌊</div>
+                    <h3 class="info-title">What is ARGO?</h3>
+                    <p class="info-description">
+                        ARGO is a global array of autonomous floats that measure temperature, salinity, and biogeochemical properties of the ocean. With over 4,000 active floats worldwide, ARGO provides real-time data crucial for climate research and ocean monitoring.
+                    </p>
+                    <a href="#" class="cta-button" onclick="showPage('home')">Explore ARGO Data</a>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">📊</div>
+                    <h3 class="info-title">NetCDF Data Format</h3>
+                    <p class="info-description">
+                        Network Common Data Form (NetCDF) is a self-describing, machine-independent data format for storing and sharing scientific data. It efficiently handles multi-dimensional arrays and metadata, making it perfect for ocean datasets.
+                    </p>
+                    <a href="#" class="cta-button" onclick="showPage('viz')">View Visualizations</a>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🤖</div>
+                    <h3 class="info-title">AI-Powered Analysis</h3>
+                    <p class="info-description">
+                        Our platform uses advanced AI to interpret natural language queries and generate dynamic visualizations. Simply ask questions about ocean data and get instant, interactive results with maps, plots, and detailed analysis.
+                    </p>
+                    <a href="#" class="cta-button" onclick="toggleChatbot()">Try AI Assistant</a>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🗺️</div>
+                    <h3 class="info-title">Global Coverage</h3>
+                    <p class="info-description">
+                        ARGO floats operate in all major ocean basins, providing comprehensive coverage from surface to 2000 meters depth. Each float cycles every 10 days, collecting profiles that help scientists understand ocean dynamics and climate change.
+                    </p>
+                    <a href="#" class="cta-button" onclick="showPage('home')">See Global Map</a>
+                </div>
+            </div>
+
+            <div class="hero-section">
+                <h2 class="hero-title" style="font-size: 2rem;">How It Works</h2>
+                <div style="max-width: 800px; margin: 0 auto; text-align: left; background: var(--card-bg); border-radius: 1rem; padding: 2rem;">
+                    <ol style="color: var(--text-light); line-height: 2;">
+                        <li><strong>Data Collection:</strong> ARGO floats drift with ocean currents and dive to 2000m depth every 10 days</li>
+                        <li><strong>Data Transmission:</strong> Floats surface and transmit data via satellite to global data centers</li>
+                        <li><strong>Processing:</strong> Raw data is processed, quality-controlled, and stored in NetCDF format</li>
+                        <li><strong>AI Analysis:</strong> Our AI system processes your natural language queries</li>
+                        <li><strong>Visualization:</strong> Dynamic maps and plots are generated based on your specific requests</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualization Page -->
+        <div id="viz-page" class="page">
+            <div class="viz-panel">
+                <div class="viz-header">
+                    <h2 class="viz-title">Ocean Data Visualizations</h2>
+                </div>
+                <div id="plotContainer" class="plot-container"></div>
+            </div>
+        </div>
+
+        <!-- Authentication Page -->
+        <div id="auth-page" class="page">
+            <div class="auth-container" id="authContainer">
+                <h2 class="auth-title" id="authTitle">Login to OceanAI</h2>
+                <form id="authForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group" id="nameGroup" style="display: none;">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name">
+                    </div>
+                    <button type="submit" class="auth-button" id="authButton">Login</button>
+                </form>
+                <p class="auth-switch">
+                    <span id="authSwitchText">Don't have an account?</span>
+                    <a href="#" onclick="toggleAuthMode()" id="authSwitchLink">Sign up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <button class="chatbot-toggle" onclick="toggleChatbot()" id="chatbotToggle">
+        💬
+    </button>
+
+    <div class="chatbot-panel" id="chatbotPanel">
+        <div class="chatbot-header">
+            <h3 class="chatbot-title">🤖 Ocean AI Assistant</h3>
+            <button class="close-btn" onclick="toggleChatbot()">×</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                👋 Hello! I'm your Ocean AI assistant. Ask me anything about ARGO data, like:
+                <br><br>
+                • "Show me BGC profiles in the Arabian Sea"<br>
+                • "Display temperature data from last 6 months"<br>
+                • "Compare salinity levels in Pacific vs Atlantic"<br>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Ask about ocean data..." onkeypress="handleChatKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 OceanAI Platform | Powered by ARGO Global Ocean Observing System</p>
+        <p>Contact: info@oceanai.org | Follow us: @OceanAI_Data</p>
+    </footer>
+
+    <script>
+        // Global variables
+        let chatbotOpen = false;
+        let currentTheme = 'light';
+        let isLoginMode = true;
+        let map;
+        let argoFloats = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            generateMockArgoData();
+            displayArgoFloats();
+            initializePlots();
+        });
+
+        // Navigation functions
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            const targetPage = pageId === 'home' ? 'home-page' : pageId + '-page';
+            document.getElementById(targetPage).classList.add('active');
+            
+            // Update main container layout
+            const mainContainer = document.querySelector('.main-container');
+            if (pageId === 'home') {
+                mainContainer.style.display = 'flex';
+            } else {
+                mainContainer.style.display = 'block';
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            if (currentTheme === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️';
+                currentTheme = 'dark';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeToggle.textContent = '🌙';
+                currentTheme = 'light';
+            }
+        }
+
+        // Chatbot functions
+        function toggleChatbot() {
+            const panel = document.getElementById('chatbotPanel');
+            const vizPanel = document.getElementById('vizPanel');
+            const toggle = document.getElementById('chatbotToggle');
+            
+            chatbotOpen = !chatbotOpen;
+            
+            if (chatbotOpen) {
+                panel.classList.add('open');
+                vizPanel.classList.add('chatbot-open');
+                toggle.textContent = '×';
+                
+                // Resize map when chatbot opens
+                setTimeout(() => {
+                    if (map) map.invalidateSize();
+                }, 300);
+            } else {
+                panel.classList.remove('open');
+                vizPanel.classList.remove('chatbot-open');
+                toggle.textContent = '💬';
+                
+                // Resize map when chatbot closes
+                setTimeout(() => {
+                    if (map) map.invalidateSize();
+                }, 300);
+            }
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.textContent = message;
+            messages.appendChild(userMsg);
+            
+            // Clear input
+            input.value = '';
+            
+            // Show typing indicator
+            const typingMsg = document.createElement('div');
+            typingMsg.className = 'message bot';
+            typingMsg.innerHTML = '<div class="loading"></div> Processing your query...';
+            messages.appendChild(typingMsg);
+            
+            // Scroll to bottom
+            messages.scrollTop = messages.scrollHeight;
+            
+            // Simulate AI response
+            setTimeout(() => {
+                messages.removeChild(typingMsg);
+                handleUserQuery(message, messages);
+            }, 2000);
+        }
+
+        function handleUserQuery(query, messagesContainer) {
+            const lowerQuery = query.toLowerCase();
+            let response = '';
+            let shouldUpdateVisualization = false;
+            
+            if (lowerQuery.includes('bgc') || lowerQuery.includes('biogeochemical')) {
+                response = '🧪 Displaying BGC (Biogeochemical) data from ARGO floats. I\'ve updated the visualization to show oxygen, pH, and chlorophyll measurements in the requested region.';
+                shouldUpdateVisualization = true;
+                updateVisualizationForBGC();
+            } else if (lowerQuery.includes('temperature')) {
+                response = '🌡️ Showing temperature profiles from ARGO floats. The visualization now displays temperature variations with depth and location over your specified timeframe.';
+                shouldUpdateVisualization = true;
+                updateVisualizationForTemperature();
+            } else if (lowerQuery.includes('salinity')) {
+                response = '🧂 Displaying salinity data from ARGO measurements. The map and plots now show salinity levels across different ocean regions and depths.';
+                shouldUpdateVisualization = true;
+                updateVisualizationForSalinity();
+            } else if (lowerQuery.includes('arabian sea')) {
+                response = '🗺️ Filtering data for the Arabian Sea region. I\'ve updated the map to focus on ARGO floats in this area and their recent measurements.';
+                shouldUpdateVisualization = true;
+                updateVisualizationForRegion('arabian_sea');
+            } else if (lowerQuery.includes('pacific') || lowerQuery.includes('atlantic')) {
+                response = '🌊 Comparing Pacific and Atlantic ocean data. The visualization now shows side-by-side comparisons of the selected parameters between these major ocean basins.';
+                shouldUpdateVisualization = true;
+                updateVisualizationForComparison();
+            } else {
+                response = '🤖 I understand you\'re interested in ocean data analysis. Could you be more specific? Try asking about:\n\n• BGC profiles in specific regions\n• Temperature or salinity data\n• Comparisons between ocean basins\n• Data from specific time periods';
+            }
+            
+            // Add bot response
+            const botMsg = document.createElement('div');
+            botMsg.className = 'message bot';
+            botMsg.innerHTML = response;
+            messagesContainer.appendChild(botMsg);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            if (shouldUpdateVisualization) {
+                updateStatusIndicator('Processing data...');
+                setTimeout(() => {
+                    updateStatusIndicator('● Visualization updated');
+                }, 1500);
+            }
+        }
+
+        // Visualization update functions
+        function updateVisualizationForBGC() {
+            // Update map markers to show BGC data
+            if (map) {
+                map.eachLayer(layer => {
+                    if (layer.options && layer.options.type === 'argo-float') {
+                        layer.setStyle({
+                            fillColor: '#10b981',
+                            color: '#059669'
+                        });
+                    }
+                });
+            }
+            
+            // Generate BGC plot
+            generateBGCPlot();
+        }
+
+        function updateVisualizationForTemperature() {
+            // Update map with temperature color coding
+            if (map) {
+                map.eachLayer(layer => {
+                    if (layer.options && layer.options.type === 'argo-float') {
+                        layer.setStyle({
+                            fillColor: '#ef4444',
+                            color: '#dc2626'
+                        });
+                    }
+                });
+            }
+            
+            // Generate temperature plot
+            generateTemperaturePlot();
+        }
+
+        function updateVisualizationForSalinity() {
+            // Update map with salinity color coding
+            if (map) {
+                map.eachLayer(layer => {
+                    if (layer.options && layer.options.type === 'argo-float') {
+                        layer.setStyle({
+                            fillColor: '#3b82f6',
+                            color: '#2563eb'
+                        });
+                    }
+                });
+            }
+            
+            // Generate salinity plot
+            generateSalinityPlot();
+        }
+
+        function updateVisualizationForRegion(region) {
+            // Focus map on specific region
+            if (map && region === 'arabian_sea') {
+                map.setView([15, 65], 6);
+            }
+            
+            // Filter and highlight regional floats
+            if (map) {
+                map.eachLayer(layer => {
+                    if (layer.options && layer.options.type === 'argo-float') {
+                        const lat = layer.getLatLng().lat;
+                        const lng = layer.getLatLng().lng;
+                        
+                        if (region === 'arabian_sea' && lat > 10 && lat < 25 && lng > 50 && lng < 80) {
+                            layer.setStyle({
+                                fillColor: '#f59e0b',
+                                color: '#d97706',
+                                radius: 8
+                            });
+                        } else {
+                            layer.setStyle({
+                                fillOpacity: 0.3,
+                                radius: 4
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateVisualizationForComparison() {
+            // Generate comparison plots
+            generateComparisonPlot();
+        }
+
+        // Map initialization
+        function initializeMap() {
+            map = L.map('mapContainer').setView([20, 0], 2);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        // Generate mock ARGO data
+        function generateMockArgoData() {
+            argoFloats = [];
+            
+            // Generate random float positions globally
+            for (let i = 0; i < 100; i++) {
+                const float = {
+                    id: `ARGO_${String(i + 1).padStart(4, '0')}`,
+                    lat: (Math.random() - 0.5) * 160, // -80 to 80 latitude
+                    lng: (Math.random() - 0.5) * 360, // -180 to 180 longitude
+                    temperature: 15 + Math.random() * 20, // 15-35°C
+                    salinity: 34 + Math.random() * 3, // 34-37 PSU
+                    oxygen: 200 + Math.random() * 100, // 200-300 µmol/kg
+                    lastUpdate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
+                };
+                argoFloats.push(float);
+            }
+        }
+
+        // Display ARGO floats on map
+        function displayArgoFloats() {
+            if (!map) return;
+            
+            argoFloats.forEach(float => {
+                const marker = L.circleMarker([float.lat, float.lng], {
+                    radius: 6,
+                    fillColor: '#0891b2',
+                    color: '#0e7490',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8,
+                    type: 'argo-float'
+                }).addTo(map);
+                
+                // Add popup with float information
+                marker.bindPopup(`
+                    <div style="font-family: Arial, sans-serif; min-width: 200px;">
+                        <h4 style="color: #0891b2; margin: 0 0 10px 0;">${float.id}</h4>
+                        <p><strong>Temperature:</strong> ${float.temperature.toFixed(1)}°C</p>
+                        <p><strong>Salinity:</strong> ${float.salinity.toFixed(2)} PSU</p>
+                        <p><strong>Oxygen:</strong> ${float.oxygen.toFixed(0)} µmol/kg</p>
+                        <p><strong>Last Update:</strong> ${float.lastUpdate.toDateString()}</p>
+                    </div>
+                `);
+            });
+        }
+
+        // Plot generation functions
+        function initializePlots() {
+            generateOverviewPlot();
+        }
+
+        function generateOverviewPlot() {
+            const data = [{
+                x: argoFloats.map(f => f.temperature),
+                y: argoFloats.map(f => f.salinity),
+                mode: 'markers',
+                type: 'scatter',
+                name: 'ARGO Floats',
+                marker: {
+                    size: 8,
+                    color: argoFloats.map(f => f.oxygen),
+                    colorscale: 'Viridis',
+                    showscale: true,
+                    colorbar: {
+                        title: 'Oxygen (µmol/kg)'
+                    }
+                }
+            }];
+
+            const layout = {
+                title: 'Temperature vs Salinity (colored by Oxygen)',
+                xaxis: { title: 'Temperature (°C)' },
+                yaxis: { title: 'Salinity (PSU)' },
+                height: 400,
+                margin: { t: 50, r: 50, b: 50, l: 50 }
+            };
+
+            if (document.getElementById('plotContainer')) {
+                Plotly.newPlot('plotContainer', data, layout, {responsive: true});
+            }
+        }
+
+        function generateBGCPlot() {
+            const depths = [-10, -50, -100, -200, -500, -1000, -1500, -2000];
+            const oxygenProfile = depths.map(d => 250 + Math.random() * 50 + d * 0.1);
+            const phProfile = depths.map(d => 8.1 + Math.random() * 0.3 - Math.abs(d) * 0.0001);
+
+            const data = [
+                {
+                    x: oxygenProfile,
+                    y: depths,
+                    mode: 'lines+markers',
+                    name: 'Oxygen',
+                    line: { color: '#10b981' }
+                },
+                {
+                    x: phProfile,
+                    y: depths,
+                    mode: 'lines+markers',
+                    name: 'pH',
+                    yaxis: 'y',
+                    xaxis: 'x2',
+                    line: { color: '#f59e0b' }
+                }
+            ];
+
+            const layout = {
+                title: 'BGC Profiles - Arabian Sea',
+                xaxis: { title: 'Oxygen (µmol/kg)', domain: [0, 0.45] },
+                xaxis2: { title: 'pH', domain: [0.55, 1] },
+                yaxis: { title: 'Depth (m)' },
+                height: 500,
+                showlegend: true
+            };
+
+            if (document.getElementById('mapContainer')) {
+                Plotly.newPlot('mapContainer', data, layout, {responsive: true});
+            }
+        }
+
+        function generateTemperaturePlot() {
+            const depths = [-10, -50, -100, -200, -500, -1000, -1500, -2000];
+            const tempProfile = depths.map(d => 25 + Math.random() * 5 - Math.abs(d) * 0.01);
+
+            const data = [{
+                x: tempProfile,
+                y: depths,
+                mode: 'lines+markers',
+                name: 'Temperature Profile',
+                line: { color: '#ef4444', width: 3 },
+                marker: { size: 8 }
+            }];
+
+            const layout = {
+                title: 'Temperature Depth Profile',
+                xaxis: { title: 'Temperature (°C)' },
+                yaxis: { title: 'Depth (m)' },
+                height: 500,
+                margin: { t: 50, r: 50, b: 50, l: 50 }
+            };
+
+            if (document.getElementById('mapContainer')) {
+                Plotly.newPlot('mapContainer', data, layout, {responsive: true});
+            }
+        }
+
+        function generateSalinityPlot() {
+            const depths = [-10, -50, -100, -200, -500, -1000, -1500, -2000];
+            const salinityProfile = depths.map(d => 34.5 + Math.random() * 2 + Math.abs(d) * 0.001);
+
+            const data = [{
+                x: salinityProfile,
+                y: depths,
+                mode: 'lines+markers',
+                name: 'Salinity Profile',
+                line: { color: '#3b82f6', width: 3 },
+                marker: { size: 8 }
+            }];
+
+            const layout = {
+                title: 'Salinity Depth Profile',
+                xaxis: { title: 'Salinity (PSU)' },
+                yaxis: { title: 'Depth (m)' },
+                height: 500,
+                margin: { t: 50, r: 50, b: 50, l: 50 }
+            };
+
+            if (document.getElementById('mapContainer')) {
+                Plotly.newPlot('mapContainer', data, layout, {responsive: true});
+            }
+        }
+
+        function generateComparisonPlot() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            const pacificTemp = months.map(() => 22 + Math.random() * 8);
+            const atlanticTemp = months.map(() => 20 + Math.random() * 10);
+
+            const data = [
+                {
+                    x: months,
+                    y: pacificTemp,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Pacific Ocean',
+                    line: { color: '#3b82f6' }
+                },
+                {
+                    x: months,
+                    y: atlanticTemp,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Atlantic Ocean',
+                    line: { color: '#ef4444' }
+                }
+            ];
+
+            const layout = {
+                title: 'Temperature Comparison: Pacific vs Atlantic',
+                xaxis: { title: 'Month' },
+                yaxis: { title: 'Temperature (°C)' },
+                height: 500,
+                margin: { t: 50, r: 50, b: 50, l: 50 }
+            };
+
+            if (document.getElementById('mapContainer')) {
+                Plotly.newPlot('mapContainer', data, layout, {responsive: true});
+            }
+        }
+
+        // Authentication functions
+        function toggleAuthMode() {
+            const title = document.getElementById('authTitle');
+            const button = document.getElementById('authButton');
+            const nameGroup = document.getElementById('nameGroup');
+            const switchText = document.getElementById('authSwitchText');
+            const switchLink = document.getElementById('authSwitchLink');
+            
+            isLoginMode = !isLoginMode;
+            
+            if (isLoginMode) {
+                title.textContent = 'Login to OceanAI';
+                button.textContent = 'Login';
+                nameGroup.style.display = 'none';
+                switchText.textContent = "Don't have an account?";
+                switchLink.textContent = 'Sign up';
+            } else {
+                title.textContent = 'Create Account';
+                button.textContent = 'Sign Up';
+                nameGroup.style.display = 'block';
+                switchText.textContent = 'Already have an account?';
+                switchLink.textContent = 'Login';
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('authForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+            
+            if (isLoginMode) {
+                // Simulate login
+                alert(`Welcome back! Logged in as ${email}`);
+            } else {
+                // Simulate signup
+                alert(`Account created successfully for ${name}!`);
+            }
+            
+            // Reset form
+            this.reset();
+            showPage('home');
+        });
+
+        // Status indicator update
+        function updateStatusIndicator(message) {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.textContent = message;
+            indicator.className = 'status-indicator';
+            
+            if (message.includes('●')) {
+                indicator.classList.add('connected');
+            }
+        }
+
+        // Mobile responsiveness
+        window.addEventListener('resize', function() {
+            if (map) {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
+        });
+
+        // Smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Add some sample trajectories for demo
+        function addFloatTrajectories() {
+            if (!map) return;
+            
+            // Sample trajectory for one float
+            const trajectory = [
+                [20.5, 65.2],
+                [20.7, 65.4],
+                [21.0, 65.6],
+                [21.3, 65.8],
+                [21.5, 66.0]
+            ];
+            
+            const polyline = L.polyline(trajectory, {
+                color: '#f59e0b',
+                weight: 3,
+                opacity: 0.7,
+                dashArray: '10, 5'
+            }).addTo(map);
+            
+            polyline.bindPopup('ARGO Float Trajectory - Last 5 cycles');
+        }
+
+        // Initialize trajectories after a delay
+        setTimeout(addFloatTrajectories, 2000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '/':
+                        e.preventDefault();
+                        if (!chatbotOpen) toggleChatbot();
+                        document.getElementById('chatInput').focus();
+                        break;
+                    case 'k':
+                        e.preventDefault();
+                        toggleTheme();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
